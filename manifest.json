@@ -1,0 +1,9 @@
+{
+  "name": "Brostrict",
+  "description": "Browsing Restrictor",
+  "version": "1.0",
+  "manifest_version": 3,
+  "action": {
+    "default_loop": "index.html"
+  }
+}

@@ -1,3 +1,4 @@
+// import { rm } from 'node:fs/promises';
 import { Effect, pipe } from 'effect';
 import type { BunFile } from 'bun';
 
@@ -24,13 +25,14 @@ const getSource = (): Effect.Effect<BunFile> => {
   return Effect.succeed(file);
 };
 
-const getSourceText = (file: BunFile) =>
+const getSourceText = (file: BunFile): Effect.Effect<string> =>
   Effect.promise(() => {
     return file.text();
   });
 
-const compileSource = (dest: string, source: string) =>
+const compileSource = (dest: string, source: string): Effect.Effect<number> =>
   Effect.promise(() => {
+    // TODO: Add module bundling & transpiling
     return Bun.write(dest, source);
   });
 
@@ -49,24 +51,32 @@ const mergeInput = ([statics, source]: [Files, BunFile]) => {
   return Effect.succeed(files);
 };
 
-const writeOutput = (files: Files): Effect.Effect<boolean> => {
-  files.forEach((file) => {
-    const name = file.name || Bun.randomUUIDv7();
-    const path = `${BUILD_PATH}/${name.startsWith(TEMPORARY_PATH) ? name.substring(TEMPORARY_PATH.length) : name}`;
-    const output = Bun.file(path);
+const writeOutput = (files: Files): Effect.Effect<boolean> =>
+  Effect.promise(async () => {
+    const fileWrites = files.map((file) => {
+      const name = file.name || Bun.randomUUIDv7();
+      const isTmp = name.startsWith(TEMPORARY_PATH);
+      const path = `${BUILD_PATH}/${isTmp ? name.substring(TEMPORARY_PATH.length) : name}`;
+      const output = Bun.file(path);
 
-    Bun.write(output, file);
+      return Bun.write(output, file);
+    });
+
+    await Promise.all(fileWrites);
+
+    return Promise.resolve(true);
   });
 
-  // TODO: Delete tmp path
-
-  return Effect.succeed(true);
-};
+// const deleteTmp = () =>
+//   Effect.promise(() => {
+//     return rm('tmp');
+//   });
 
 const build = pipe(
   Effect.all([getStatics(), getCompiledSource]),
   Effect.flatMap(mergeInput),
   Effect.flatMap(writeOutput),
+  // Effect.tap(deleteTmp),
 );
 
 Effect.runPromise(build);

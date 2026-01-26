@@ -120,5 +120,5 @@ const render = (data: Data): Effect.Effect<boolean, Error> => {
  * End -- Effects
  */
 
-// const program = pipe(Effect.flatMap(retrieveData), Effect.flatMap(render));
-// Effect.runSync(program);
+const program = pipe(retrieveData(), Effect.flatMap(render));
+Effect.runPromise(program);

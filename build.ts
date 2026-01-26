@@ -1,5 +1,6 @@
-// import { rm } from 'node:fs/promises';
+import { rm } from 'node:fs/promises';
 import { Effect, pipe } from 'effect';
+
 import type { BunFile } from 'bun';
 
 type Files = BunFile[];
@@ -33,13 +34,15 @@ const getSourceText = (file: BunFile): Effect.Effect<string> =>
 const compileSource = (dest: string, source: string): Effect.Effect<number> =>
   Effect.promise(() => {
     // TODO: Add module bundling & transpiling
-    return Bun.write(dest, source);
+    const transpiler = new Bun.Transpiler({ loader: 'ts' });
+    const result = transpiler.transformSync(source);
+    return Bun.write(dest, result);
   });
 
 const getCompiledSource: Effect.Effect<BunFile> = Effect.gen(function* () {
   const file = yield* getSource();
   const source = yield* getSourceText(file);
-  const tempPath = `${TEMPORARY_PATH}/index.ts`;
+  const tempPath = `${TEMPORARY_PATH}/index.js`;
   yield* compileSource(tempPath, source);
 
   return Bun.file(tempPath);
@@ -67,16 +70,16 @@ const writeOutput = (files: Files): Effect.Effect<boolean> =>
     return Promise.resolve(true);
   });
 
-// const deleteTmp = () =>
-//   Effect.promise(() => {
-//     return rm('tmp');
-//   });
+const deleteTmp = () =>
+  Effect.promise(() => {
+    return rm('tmp');
+  });
 
 const build = pipe(
   Effect.all([getStatics(), getCompiledSource]),
   Effect.flatMap(mergeInput),
   Effect.flatMap(writeOutput),
-  // Effect.tap(deleteTmp),
+  Effect.tap(deleteTmp),
 );
 
 Effect.runPromise(build);

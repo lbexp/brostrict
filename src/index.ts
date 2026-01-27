@@ -14,21 +14,21 @@ interface Data {
  */
 
 /*
- * Start -- Const declarations
+ * Start -- Const/var declarations
  */
 
 const BLACKLIST_STORAGE_KEY = 'blacklist';
 const ACTIVE_STORAGE_KEY = 'active';
 
 /*
- * End -- Const declarations
+ * End -- Const/var declarations
  */
 
 /*
  * Non-effect functions
  */
 
-const addUrl = () => {
+const addUrl = (): void => {
   const list = document.getElementById('blacklist');
   const input = document.getElementById('url-input') as HTMLInputElement;
   const item = document.createElement('p');
@@ -36,6 +36,20 @@ const addUrl = () => {
   if (input && list) {
     item.textContent = input.value;
     list.appendChild(item);
+    // TODO: Save to storage
+  }
+};
+
+const toggleOnOff = (): void => {
+  const onOffButton = document.getElementById('on-off') as
+    | HTMLButtonElement
+    | undefined;
+
+  if (onOffButton) {
+    const active = onOffButton.textContent === 'on';
+
+    onOffButton.classList.add(active ? 'on' : 'off');
+    onOffButton.textContent = active ? 'ON' : 'OFF';
   }
 };
 
@@ -108,6 +122,7 @@ const render = (data: Data): Effect.Effect<boolean, Error> => {
     onOffWrapper.appendChild(onOffButton);
     onOffButton.classList.add(active ? 'on' : 'off');
     onOffButton.textContent = active ? 'ON' : 'OFF';
+    onOffButton.addEventListener('click', toggleOnOff);
     container.appendChild(onOffWrapper);
 
     return Effect.succeed(true);

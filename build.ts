@@ -1,5 +1,5 @@
-import { rm } from 'node:fs/promises';
 import { Effect, pipe } from 'effect';
+import { build } from 'esbuild';
 
 import type { BunFile } from 'bun';
 
@@ -7,6 +7,7 @@ type Files = BunFile[];
 
 const TEMPORARY_PATH = 'tmp/';
 const BUILD_PATH = 'build/';
+const ENTRY = 'src/index.ts';
 
 const getStatics = (): Effect.Effect<Files> => {
   const files: Files = [];
@@ -17,35 +18,32 @@ const getStatics = (): Effect.Effect<Files> => {
   const html = Bun.file('index.html');
   if (html) files.push(html);
 
+  const icon = Bun.file('icon.png');
+  if (icon) files.push(icon);
+
   return Effect.succeed(files);
 };
 
-const getSource = (): Effect.Effect<BunFile> => {
-  const file = Bun.file('src/index.ts');
+const compileSource = (entry: string, dest: string): Effect.Effect<number> =>
+  Effect.promise(async () => {
+    await build({
+      entryPoints: [entry],
+      outfile: dest,
+      bundle: true,
+      format: 'iife',
+      target: ['es6'],
+      minify: true,
+      sourcemap: false,
+    });
 
-  return Effect.succeed(file);
-};
-
-const getSourceText = (file: BunFile): Effect.Effect<string> =>
-  Effect.promise(() => {
-    return file.text();
-  });
-
-const compileSource = (dest: string, source: string): Effect.Effect<number> =>
-  Effect.promise(() => {
-    // TODO: Add module bundling & transpiling
-    const transpiler = new Bun.Transpiler({ loader: 'ts' });
-    const result = transpiler.transformSync(source);
-    return Bun.write(dest, result);
+    return 1;
   });
 
 const getCompiledSource: Effect.Effect<BunFile> = Effect.gen(function* () {
-  const file = yield* getSource();
-  const source = yield* getSourceText(file);
-  const tempPath = `${TEMPORARY_PATH}/index.js`;
-  yield* compileSource(tempPath, source);
+  const dest = `${TEMPORARY_PATH}/index.js`;
+  yield* compileSource(ENTRY, dest);
 
-  return Bun.file(tempPath);
+  return Bun.file(dest);
 });
 
 const mergeInput = ([statics, source]: [Files, BunFile]) => {
@@ -70,16 +68,10 @@ const writeOutput = (files: Files): Effect.Effect<boolean> =>
     return Promise.resolve(true);
   });
 
-const deleteTmp = () =>
-  Effect.promise(() => {
-    return rm('tmp');
-  });
-
-const build = pipe(
+const buildPipeline = pipe(
   Effect.all([getStatics(), getCompiledSource]),
   Effect.flatMap(mergeInput),
   Effect.flatMap(writeOutput),
-  Effect.tap(deleteTmp),
 );
 
-Effect.runPromise(build);
+Effect.runPromise(buildPipeline);

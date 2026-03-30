@@ -63,11 +63,13 @@ const toggleOnOff = (): void => {
 
 const retrieveData = (): Effect.Effect<Data> =>
   Effect.promise(async () => {
-    const result = await chrome.storage.local.get([BLACKLIST_STORAGE_KEY]);
+    const result = await chrome.storage.sync.get([BLACKLIST_STORAGE_KEY]);
 
     try {
-      const blacklist = JSON.parse(result[BLACKLIST_STORAGE_KEY]) as string[];
-      const active = JSON.parse(result[ACTIVE_STORAGE_KEY]) as boolean;
+      const blacklist = JSON.parse(
+        result[BLACKLIST_STORAGE_KEY] || '[]',
+      ) as string[];
+      const active = JSON.parse(result[ACTIVE_STORAGE_KEY] || '[]') as boolean;
 
       return {
         blacklist,

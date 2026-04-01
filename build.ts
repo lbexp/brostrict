@@ -7,7 +7,6 @@ type Files = BunFile[];
 
 const TEMPORARY_PATH = 'tmp/';
 const BUILD_PATH = 'build/';
-const ENTRY = 'src/index.ts';
 
 const getStatics = (): Effect.Effect<Files> => {
   const files: Files = [];
@@ -17,6 +16,9 @@ const getStatics = (): Effect.Effect<Files> => {
 
   const html = Bun.file('index.html');
   if (html) files.push(html);
+
+  const blockedHtml = Bun.file('blocked.html');
+  if (blockedHtml) files.push(blockedHtml);
 
   const icon = Bun.file('icon.png');
   if (icon) files.push(icon);
@@ -39,16 +41,18 @@ const compileSource = (entry: string, dest: string): Effect.Effect<number> =>
     return 1;
   });
 
-const getCompiledSource: Effect.Effect<BunFile> = Effect.gen(function* () {
-  const dest = `${TEMPORARY_PATH}/index.js`;
-  yield* compileSource(ENTRY, dest);
+const getCompiledSources = (): Effect.Effect<Files> => Effect.gen(function* () {
+  const popupDest = `${TEMPORARY_PATH}/index.js`;
+  yield* compileSource('src/popup.ts', popupDest);
 
-  return Bun.file(dest);
+  const bgDest = `${TEMPORARY_PATH}/background.js`;
+  yield* compileSource('src/background.ts', bgDest);
+
+  return [Bun.file(popupDest), Bun.file(bgDest)];
 });
 
-const mergeInput = ([statics, source]: [Files, BunFile]) => {
-  const files: Files = [...statics, source];
-
+const mergeInput = ([statics, sources]: [Files, Files]): Effect.Effect<Files> => {
+  const files: Files = [...statics, ...sources];
   return Effect.succeed(files);
 };
 
@@ -64,13 +68,12 @@ const writeOutput = (files: Files): Effect.Effect<boolean> =>
     });
 
     await Promise.all(fileWrites);
-
     return Promise.resolve(true);
   });
 
 const buildPipeline = pipe(
-  Effect.all([getStatics(), getCompiledSource]),
-  Effect.flatMap(mergeInput),
+  Effect.all([getStatics(), getCompiledSources()]),
+  Effect.flatMap(([statics, sources]) => mergeInput([statics, sources])),
   Effect.flatMap(writeOutput),
 );
 

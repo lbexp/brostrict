@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Blocked - Brostrict</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          Oxygen, Ubuntu, sans-serif;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        color: #eee;
+        padding: 20px;
+        text-align: center;
+      }
+      .container {
+        max-width: 500px;
+      }
+      h1 {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: #e94560;
+      }
+      p {
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+        color: #ccc;
+      }
+      .blocked-url {
+        background: rgba(233, 69, 96, 0.1);
+        border: 1px solid #e94560;
+        border-radius: 8px;
+        padding: 12px 20px;
+        margin-bottom: 2rem;
+        word-break: break-all;
+        font-family: monospace;
+        color: #e94560;
+      }
+      .button-group {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      button {
+        background: #e94560;
+        color: white;
+        border: none;
+        padding: 12px 32px;
+        font-size: 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      button:hover {
+        background: #d63651;
+      }
+      button.secondary {
+        background: #16213e;
+        border: 1px solid #e94560;
+      }
+      button.secondary:hover {
+        background: #1a2744;
+      }
+      .whitelist-notice {
+        background: rgba(0, 210, 106, 0.1);
+        border: 1px solid #00d26a;
+        border-radius: 8px;
+        padding: 12px 20px;
+        margin-bottom: 1rem;
+        color: #00d26a;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔒 Blocked</h1>
+      <p>This site has been blocked by Brostrict</p>
+      <div class="blocked-url" id="blocked-url">Loading...</div>
+      <div id="whitelist-notice" class="whitelist-notice" style="display: none;">
+        This URL is whitelisted!
+      </div>
+      <div class="button-group">
+        <button id="proceed-btn" style="display: none;">Proceed Anyway</button>
+        <button id="go-back-btn">Go Back</button>
+      </div>
+    </div>
+    <script>
+      let detectedUrl = '';
+      if (window.location.ancestorOrigins && window.location.ancestorOrigins.length > 0) {
+        detectedUrl = window.location.ancestorOrigins[0];
+      } else if (document.referrer) {
+        detectedUrl = document.referrer;
+      }
+      document.getElementById('blocked-url').textContent = detectedUrl || 'Unknown URL';
+
+      if (detectedUrl) {
+        chrome.runtime.sendMessage({ type: 'isWhitelisted', url: detectedUrl }, (response) => {
+          if (response && response.result) {
+            document.getElementById('whitelist-notice').style.display = 'block';
+            document.getElementById('proceed-btn').style.display = 'inline-block';
+          }
+        });
+      }
+
+      document.getElementById('proceed-btn').addEventListener('click', () => {
+        if (detectedUrl) {
+          window.location.href = detectedUrl;
+        }
+      });
+
+      document.getElementById('go-back-btn').addEventListener('click', () => {
+        if (window.history.length > 1) {
+          window.history.back();
+        } else if (detectedUrl) {
+          try {
+            const domain = new URL(detectedUrl).hostname;
+            window.location.href = 'https://' + domain;
+          } catch {
+            window.close();
+          }
+        } else {
+          window.close();
+        }
+      });
+    </script>
+  </body>
+</html>

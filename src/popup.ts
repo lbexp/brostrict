@@ -1,58 +1,41 @@
 import { Effect, pipe } from 'effect';
 
+/*
+ * INTERFACES - START
+ */
+
 interface Data {
   blacklist: string[];
   whitelist: string[];
   active: boolean;
 }
 
+/*
+ * INTERFACES - END
+ */
+
+/*
+ * CONSTANTS - START
+ */
+
 const STORAGE_KEY = 'brostrict_data';
 
-const retrieveData = (): Effect.Effect<Data> =>
-  Effect.promise(async () => {
-    const result = await chrome.storage.local.get(STORAGE_KEY);
-    return (
-      result[STORAGE_KEY] || {
-        blacklist: [],
-        whitelist: [],
-        active: true,
-      }
-    );
-  });
+/*
+ * CONSTANTS - END
+ */
 
-const saveData = (data: Data): Effect.Effect<void> =>
-  Effect.promise(async () => {
-    await chrome.storage.local.set({ [STORAGE_KEY]: data });
-  });
-
-const renderList = (
-  list: HTMLUListElement,
-  items: string[],
-  onRemove: (index: number) => void,
-): void => {
-  list.innerHTML = '';
-  items.forEach((item, index) => {
-    const li = document.createElement('li');
-    li.className = 'list-item';
-
-    const text = document.createElement('span');
-    text.textContent = item;
-    li.appendChild(text);
-
-    const removeBtn = document.createElement('button');
-    removeBtn.textContent = '×';
-    removeBtn.className = 'remove-btn';
-    removeBtn.addEventListener('click', () => onRemove(index));
-    li.appendChild(removeBtn);
-
-    list.appendChild(li);
-  });
-};
-
-const render = (data: Data): HTMLDivElement => {
+const createContainer = (): HTMLDivElement => {
   const container = document.createElement('div');
   container.className = 'container';
 
+  return container;
+};
+
+/*
+ * BUILDING BLOCKS - START
+ */
+
+const createToggle = (active: boolean): HTMLElement => {
   const toggleWrapper = document.createElement('div');
   toggleWrapper.className = 'toggle-wrapper';
 
@@ -62,11 +45,19 @@ const render = (data: Data): HTMLDivElement => {
 
   const toggle = document.createElement('button');
   toggle.id = 'toggle';
-  toggle.className = data.active ? 'active' : 'inactive';
-  toggle.textContent = data.active ? 'ON' : 'OFF';
+  toggle.className = active ? 'active' : 'inactive';
+  toggle.textContent = active ? 'ON' : 'OFF';
   toggleWrapper.appendChild(toggle);
-  container.appendChild(toggleWrapper);
 
+  return toggleWrapper;
+};
+
+const createBlacklist = (): {
+  blacklistSection: HTMLDivElement;
+  blacklistList: HTMLUListElement;
+  blacklistAddBtn: HTMLButtonElement;
+  blacklistInput: HTMLInputElement;
+} => {
   const blacklistSection = document.createElement('div');
   blacklistSection.className = 'section';
   const blacklistTitle = document.createElement('h3');
@@ -89,8 +80,16 @@ const render = (data: Data): HTMLDivElement => {
   blacklistList.id = 'blacklist';
   blacklistList.className = 'list';
   blacklistSection.appendChild(blacklistList);
-  container.appendChild(blacklistSection);
 
+  return { blacklistSection, blacklistList, blacklistAddBtn, blacklistInput };
+};
+
+const createWhitelist = (): {
+  whitelistSection: HTMLDivElement;
+  whitelistList: HTMLUListElement;
+  whitelistAddBtn: HTMLButtonElement;
+  whitelistInput: HTMLInputElement;
+} => {
   const whitelistSection = document.createElement('div');
   whitelistSection.className = 'section';
   const whitelistTitle = document.createElement('h3');
@@ -114,6 +113,71 @@ const render = (data: Data): HTMLDivElement => {
   whitelistList.id = 'whitelist';
   whitelistList.className = 'list';
   whitelistSection.appendChild(whitelistList);
+
+  return { whitelistSection, whitelistList, whitelistAddBtn, whitelistInput };
+};
+
+const retrieveData = (): Effect.Effect<Data> =>
+  Effect.promise(async () => {
+    const result = await chrome.storage.local.get(STORAGE_KEY);
+    return (
+      result[STORAGE_KEY] || {
+        blacklist: [],
+        whitelist: [],
+        active: true,
+      }
+    );
+  });
+
+const saveData = (data: Data): Effect.Effect<void> =>
+  Effect.promise(async () => {
+    await chrome.storage.local.set({ [STORAGE_KEY]: data });
+  });
+
+/*
+ * BUILDING BLOCKS - END
+ */
+
+/*
+ * MAIN - START
+ */
+
+const renderList = (
+  list: HTMLElement,
+  items: string[],
+  onRemove: (index: number) => void,
+): void => {
+  list.innerHTML = '';
+  items.forEach((item, index) => {
+    const li = document.createElement('li');
+    li.className = 'list-item';
+
+    const text = document.createElement('span');
+    text.textContent = item;
+    li.appendChild(text);
+
+    const removeBtn = document.createElement('button');
+    removeBtn.textContent = '×';
+    removeBtn.className = 'remove-btn';
+    removeBtn.addEventListener('click', () => onRemove(index));
+    li.appendChild(removeBtn);
+
+    list.appendChild(li);
+  });
+};
+
+const render = (data: Data): HTMLDivElement => {
+  const container = createContainer();
+
+  const toggle = createToggle(data.active);
+  container.appendChild(toggle);
+
+  const { blacklistSection, blacklistList, blacklistAddBtn, blacklistInput } =
+    createBlacklist();
+  container.appendChild(blacklistSection);
+
+  const { whitelistSection, whitelistList, whitelistAddBtn, whitelistInput } =
+    createWhitelist();
   container.appendChild(whitelistSection);
 
   let currentData = data;
@@ -189,3 +253,7 @@ const program = pipe(
 );
 
 Effect.runPromise(program);
+
+/*
+ * MAIN FLOW - END
+ */

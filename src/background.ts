@@ -1,8 +1,20 @@
+/*
+ * INTERFACES - START
+ */
+
 interface Data {
   blacklist: string[];
   whitelist: string[];
   active: boolean;
 }
+
+/*
+ * INTERFACES - END
+ */
+
+/*
+ * VARIAGBLES - START
+ */
 
 const STORAGE_KEY = 'brostrict_data';
 const BLOCKED_PAGE = chrome.runtime.getURL('blocked.html');
@@ -12,6 +24,14 @@ let cachedData: Data = {
   whitelist: [],
   active: true,
 };
+
+/*
+ * VARIABLES - END
+ */
+
+/*
+ * BUILDING BLOCKS - START
+ */
 
 const isUrlWhitelisted = (url: string, whitelist: string[]): boolean => {
   try {
@@ -36,10 +56,6 @@ const isUrlWhitelisted = (url: string, whitelist: string[]): boolean => {
   }
 };
 
-const getWhitelistData = (): string => {
-  return JSON.stringify(cachedData.whitelist);
-};
-
 const updateRules = (): void => {
   if (!cachedData.active) {
     chrome.declarativeNetRequest.updateDynamicRules({
@@ -49,18 +65,26 @@ const updateRules = (): void => {
     return;
   }
 
-  const whitelistDomains = cachedData.whitelist
-    .filter((w) => !w.includes('/'))
-    .map((w) => w.replace(/^\*\./, ''));
+  const rules: chrome.declarativeNetRequest.Rule[] = [];
 
-  const blockedHosts = cachedData.blacklist.filter(
-    (d) => !whitelistDomains.some((w) => d === w || d.endsWith('.' + w)),
-  );
-
-  const rules: chrome.declarativeNetRequest.Rule[] = blockedHosts.map(
-    (domain, index) => ({
-      id: index + 1,
+  cachedData.whitelist.forEach((item) => {
+    rules.push({
+      id: rules.length + 1,
       priority: 1,
+      action: {
+        type: 'allow',
+      },
+      condition: {
+        resourceTypes: ['main_frame'],
+        urlFilter: item,
+      },
+    });
+  });
+
+  cachedData.blacklist.forEach((item) => {
+    rules.push({
+      id: rules.length + 1,
+      priority: 2,
       action: {
         type: 'redirect',
         redirect: {
@@ -69,17 +93,24 @@ const updateRules = (): void => {
       },
       condition: {
         resourceTypes: ['main_frame'],
-        urlFilter: `||${domain}`,
-        excludedDomains: whitelistDomains,
+        urlFilter: item,
       },
-    }),
-  );
+    });
+  });
 
   chrome.declarativeNetRequest.updateDynamicRules({
     removeRuleIds: Array.from({ length: 100 }, (_, i) => i + 1),
     addRules: rules,
   });
 };
+
+/*
+ * BUILDING BLOCKS - END
+ */
+
+/*
+ * MAIN FLOW - START
+ */
 
 const init = (): void => {
   chrome.storage.local.get(STORAGE_KEY, (result) => {
@@ -104,7 +135,13 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     sendResponse({ whitelist: cachedData.whitelist });
   }
   if (message.type === 'isWhitelisted') {
-    sendResponse({ result: isUrlWhitelisted(message.url, cachedData.whitelist) });
+    sendResponse({
+      result: isUrlWhitelisted(message.url, cachedData.whitelist),
+    });
   }
   return true;
 });
+
+/*
+ * MAIN FLOW - END
+ */

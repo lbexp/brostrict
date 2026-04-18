@@ -12,7 +12,10 @@ const createContainer = (): HTMLDivElement => {
   return container;
 };
 
-const createProtectionCard = (active: boolean): HTMLDivElement => {
+const createProtectionCard = (
+  active: boolean,
+  onToggle: () => void,
+): HTMLDivElement => {
   const card = document.createElement('div');
   card.className = 'card';
 
@@ -24,9 +27,9 @@ const createProtectionCard = (active: boolean): HTMLDivElement => {
   cardHeader.appendChild(title);
 
   const toggle = document.createElement('button');
-  toggle.id = 'toggle';
   toggle.className = active ? 'toggle active' : 'toggle inactive';
   toggle.textContent = active ? 'On' : 'Off';
+  toggle.addEventListener('click', onToggle);
   cardHeader.appendChild(toggle);
 
   card.appendChild(cardHeader);
@@ -119,7 +122,12 @@ const renderList = (
 const render = (data: Data): HTMLDivElement => {
   const container = createContainer();
 
-  const protectionCard = createProtectionCard(data.active);
+  let currentData = data;
+
+  const protectionCard = createProtectionCard(data.active, () => {
+    const newData = { ...currentData, active: !currentData.active };
+    saveData(newData).then(() => updateUI(newData));
+  });
   container.appendChild(protectionCard);
 
   const {
@@ -137,8 +145,6 @@ const render = (data: Data): HTMLDivElement => {
     input: whitelistInput,
   } = createListCard('whitelist', 'Whitelist', 'youtube.com/video');
   container.appendChild(whitelistCard);
-
-  let currentData = data;
 
   const updateUI = (newData: Data): void => {
     currentData = newData;
@@ -164,14 +170,6 @@ const render = (data: Data): HTMLDivElement => {
     };
     saveData(newData).then(() => updateUI(newData));
   });
-
-  const toggle = document.getElementById('toggle');
-  if (toggle) {
-    toggle.addEventListener('click', () => {
-      const newData = { ...currentData, active: !currentData.active };
-      saveData(newData).then(() => updateUI(newData));
-    });
-  }
 
   blacklistAddBtn.addEventListener('click', () => {
     const value = blacklistInput.value.trim();

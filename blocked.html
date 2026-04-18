@@ -3,6 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <title>Blocked - Brostrict</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;600&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet" />
     <style>
       * {
         margin: 0;
@@ -10,40 +13,69 @@
         box-sizing: border-box;
       }
       body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-          Oxygen, Ubuntu, sans-serif;
+        font-family: 'Comfortaa', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         min-height: 100vh;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-        color: #eee;
+        background: #0a0a0a;
+        color: #e5e5e5;
         padding: 20px;
         text-align: center;
       }
       .container {
-        max-width: 500px;
+        max-width: 420px;
+        width: 100%;
+      }
+      .icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 24px;
+        background: #111111;
+        border: 2px solid #222;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: #fff;
       }
       h1 {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-        color: #e94560;
+        font-size: 2rem;
+        font-weight: 600;
+        color: #ffffff;
+        margin-bottom: 8px;
+        letter-spacing: -0.5px;
       }
-      p {
-        font-size: 1.1rem;
-        margin-bottom: 1.5rem;
-        color: #ccc;
+      .subtitle {
+        font-size: 0.75rem;
+        color: #555;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 24px;
+        font-weight: 300;
       }
       .blocked-url {
-        background: rgba(233, 69, 96, 0.1);
-        border: 1px solid #e94560;
-        border-radius: 8px;
-        padding: 12px 20px;
-        margin-bottom: 2rem;
+        background: #111111;
+        border: 1px solid #1e1e1e;
+        border-radius: 12px;
+        padding: 14px 18px;
+        margin-bottom: 20px;
         word-break: break-all;
-        font-family: monospace;
-        color: #e94560;
+        font-family: 'IBM Plex Mono', monospace;
+        color: #888;
+        font-size: 0.8rem;
+      }
+      .notice {
+        background: #111111;
+        border: 1px solid #222;
+        border-radius: 12px;
+        padding: 12px 16px;
+        margin-bottom: 20px;
+        font-size: 0.75rem;
+        color: #666;
+        display: none;
       }
       .button-group {
         display: flex;
@@ -52,46 +84,48 @@
         flex-wrap: wrap;
       }
       button {
-        background: #e94560;
-        color: white;
+        background: #ffffff;
+        color: #0a0a0a;
         border: none;
-        padding: 12px 32px;
-        font-size: 1rem;
-        border-radius: 6px;
+        padding: 14px 28px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        font-family: 'Comfortaa', sans-serif;
+        border-radius: 12px;
         cursor: pointer;
-        transition: background 0.2s;
+        transition: all 0.2s;
       }
       button:hover {
-        background: #d63651;
+        background: #e5e5e5;
+        transform: translateY(-2px);
+      }
+      button:active {
+        transform: translateY(0);
       }
       button.secondary {
-        background: #16213e;
-        border: 1px solid #e94560;
+        background: transparent;
+        border: 1px solid #333;
+        color: #888;
       }
       button.secondary:hover {
-        background: #1a2744;
-      }
-      .whitelist-notice {
-        background: rgba(0, 210, 106, 0.1);
-        border: 1px solid #00d26a;
-        border-radius: 8px;
-        padding: 12px 20px;
-        margin-bottom: 1rem;
-        color: #00d26a;
+        background: #111111;
+        border-color: #444;
+        transform: translateY(-2px);
       }
     </style>
   </head>
   <body>
     <div class="container">
-      <h1>🔒 Blocked</h1>
-      <p>This site has been blocked by Brostrict</p>
+      <div class="icon">✕</div>
+      <h1>Blocked</h1>
+      <p class="subtitle">Site restricted by Brostrict</p>
       <div class="blocked-url" id="blocked-url">Loading...</div>
-      <div id="whitelist-notice" class="whitelist-notice" style="display: none;">
-        This URL is whitelisted!
+      <div class="notice" id="notice">
+        This URL is whitelisted — you may proceed
       </div>
       <div class="button-group">
-        <button id="proceed-btn" style="display: none;">Proceed Anyway</button>
-        <button id="go-back-btn">Go Back</button>
+        <button id="proceed-btn" style="display: none;">Proceed</button>
+        <button id="go-back-btn" class="secondary">Go Back</button>
       </div>
     </div>
     <script>
@@ -106,7 +140,7 @@
       if (detectedUrl) {
         chrome.runtime.sendMessage({ type: 'isWhitelisted', url: detectedUrl }, (response) => {
           if (response && response.result) {
-            document.getElementById('whitelist-notice').style.display = 'block';
+            document.getElementById('notice').style.display = 'block';
             document.getElementById('proceed-btn').style.display = 'inline-block';
           }
         });

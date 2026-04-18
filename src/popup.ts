@@ -1,120 +1,82 @@
 import { Effect, pipe } from 'effect';
 
-/*
- * INTERFACES - START
- */
-
 interface Data {
   blacklist: string[];
   whitelist: string[];
   active: boolean;
 }
 
-/*
- * INTERFACES - END
- */
-
-/*
- * CONSTANTS - START
- */
-
 const STORAGE_KEY = 'brostrict_data';
-
-/*
- * CONSTANTS - END
- */
 
 const createContainer = (): HTMLDivElement => {
   const container = document.createElement('div');
   container.className = 'container';
-
   return container;
 };
 
-/*
- * BUILDING BLOCKS - START
- */
+const createProtectionCard = (active: boolean): HTMLDivElement => {
+  const card = document.createElement('div');
+  card.className = 'card';
 
-const createToggle = (active: boolean): HTMLElement => {
-  const toggleWrapper = document.createElement('div');
-  toggleWrapper.className = 'toggle-wrapper';
+  const cardHeader = document.createElement('div');
+  cardHeader.className = 'card-header';
 
-  const toggleLabel = document.createElement('span');
-  toggleLabel.textContent = 'Protection';
-  toggleWrapper.appendChild(toggleLabel);
+  const title = document.createElement('h3');
+  title.textContent = 'Protection';
+  cardHeader.appendChild(title);
 
   const toggle = document.createElement('button');
   toggle.id = 'toggle';
-  toggle.className = active ? 'active' : 'inactive';
-  toggle.textContent = active ? 'ON' : 'OFF';
-  toggleWrapper.appendChild(toggle);
+  toggle.className = active ? 'toggle active' : 'toggle inactive';
+  toggle.textContent = active ? 'On' : 'Off';
+  cardHeader.appendChild(toggle);
 
-  return toggleWrapper;
+  card.appendChild(cardHeader);
+  return card;
 };
 
-const createBlacklist = (): {
-  blacklistSection: HTMLDivElement;
-  blacklistList: HTMLUListElement;
-  blacklistAddBtn: HTMLButtonElement;
-  blacklistInput: HTMLInputElement;
+const createListCard = (
+  id: string,
+  title: string,
+  placeholder: string,
+): {
+  card: HTMLDivElement;
+  list: HTMLUListElement;
+  addBtn: HTMLButtonElement;
+  input: HTMLInputElement;
 } => {
-  const blacklistSection = document.createElement('div');
-  blacklistSection.className = 'section';
-  const blacklistTitle = document.createElement('h3');
-  blacklistTitle.textContent = 'Blacklist';
-  blacklistSection.appendChild(blacklistTitle);
+  const card = document.createElement('div');
+  card.className = 'card';
 
-  const blacklistInputRow = document.createElement('div');
-  blacklistInputRow.className = 'input-row';
-  const blacklistInput = document.createElement('input');
-  blacklistInput.id = 'blacklist-input';
-  blacklistInput.type = 'text';
-  blacklistInput.placeholder = 'Enter domain (e.g., youtube.com)';
-  const blacklistAddBtn = document.createElement('button');
-  blacklistAddBtn.textContent = 'Add';
-  blacklistInputRow.appendChild(blacklistInput);
-  blacklistInputRow.appendChild(blacklistAddBtn);
-  blacklistSection.appendChild(blacklistInputRow);
+  const cardHeader = document.createElement('div');
+  cardHeader.className = 'card-header';
 
-  const blacklistList = document.createElement('ul');
-  blacklistList.id = 'blacklist';
-  blacklistList.className = 'list';
-  blacklistSection.appendChild(blacklistList);
+  const titleEl = document.createElement('h3');
+  titleEl.textContent = title;
+  cardHeader.appendChild(titleEl);
 
-  return { blacklistSection, blacklistList, blacklistAddBtn, blacklistInput };
-};
+  card.appendChild(cardHeader);
 
-const createWhitelist = (): {
-  whitelistSection: HTMLDivElement;
-  whitelistList: HTMLUListElement;
-  whitelistAddBtn: HTMLButtonElement;
-  whitelistInput: HTMLInputElement;
-} => {
-  const whitelistSection = document.createElement('div');
-  whitelistSection.className = 'section';
-  const whitelistTitle = document.createElement('h3');
-  whitelistTitle.textContent = 'Whitelist';
-  whitelistSection.appendChild(whitelistTitle);
+  const inputRow = document.createElement('div');
+  inputRow.className = 'input-row';
 
-  const whitelistInputRow = document.createElement('div');
-  whitelistInputRow.className = 'input-row';
-  const whitelistInput = document.createElement('input');
-  whitelistInput.id = 'whitelist-input';
-  whitelistInput.type = 'text';
-  whitelistInput.placeholder =
-    'Enter URL with path (e.g., youtube.com/pewdiepie)';
-  const whitelistAddBtn = document.createElement('button');
-  whitelistAddBtn.textContent = 'Add';
-  whitelistInputRow.appendChild(whitelistInput);
-  whitelistInputRow.appendChild(whitelistAddBtn);
-  whitelistSection.appendChild(whitelistInputRow);
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.placeholder = placeholder;
 
-  const whitelistList = document.createElement('ul');
-  whitelistList.id = 'whitelist';
-  whitelistList.className = 'list';
-  whitelistSection.appendChild(whitelistList);
+  const addBtn = document.createElement('button');
+  addBtn.textContent = 'Add';
 
-  return { whitelistSection, whitelistList, whitelistAddBtn, whitelistInput };
+  inputRow.appendChild(input);
+  inputRow.appendChild(addBtn);
+  card.appendChild(inputRow);
+
+  const list = document.createElement('ul');
+  list.id = id;
+  list.className = 'list';
+  card.appendChild(list);
+
+  return { card, list, addBtn, input };
 };
 
 const retrieveData = (): Effect.Effect<Data> =>
@@ -133,14 +95,6 @@ const saveData = (data: Data): Effect.Effect<void> =>
   Effect.promise(async () => {
     await chrome.storage.local.set({ [STORAGE_KEY]: data });
   });
-
-/*
- * BUILDING BLOCKS - END
- */
-
-/*
- * MAIN - START
- */
 
 const renderList = (
   list: HTMLElement,
@@ -169,16 +123,24 @@ const renderList = (
 const render = (data: Data): HTMLDivElement => {
   const container = createContainer();
 
-  const toggle = createToggle(data.active);
-  container.appendChild(toggle);
+  const protectionCard = createProtectionCard(data.active);
+  container.appendChild(protectionCard);
 
-  const { blacklistSection, blacklistList, blacklistAddBtn, blacklistInput } =
-    createBlacklist();
-  container.appendChild(blacklistSection);
+  const {
+    card: blacklistCard,
+    list: blacklistList,
+    addBtn: blacklistAddBtn,
+    input: blacklistInput,
+  } = createListCard('blacklist', 'Blacklist', 'youtube.com');
+  container.appendChild(blacklistCard);
 
-  const { whitelistSection, whitelistList, whitelistAddBtn, whitelistInput } =
-    createWhitelist();
-  container.appendChild(whitelistSection);
+  const {
+    card: whitelistCard,
+    list: whitelistList,
+    addBtn: whitelistAddBtn,
+    input: whitelistInput,
+  } = createListCard('whitelist', 'Whitelist', 'youtube.com/video');
+  container.appendChild(whitelistCard);
 
   let currentData = data;
 
@@ -207,10 +169,13 @@ const render = (data: Data): HTMLDivElement => {
     Effect.runPromise(saveData(newData)).then(() => updateUI(newData));
   });
 
-  toggle.addEventListener('click', () => {
-    const newData = { ...currentData, active: !currentData.active };
-    Effect.runPromise(saveData(newData)).then(() => updateUI(newData));
-  });
+  const toggle = document.getElementById('toggle');
+  if (toggle) {
+    toggle.addEventListener('click', () => {
+      const newData = { ...currentData, active: !currentData.active };
+      Effect.runPromise(saveData(newData)).then(() => updateUI(newData));
+    });
+  }
 
   blacklistAddBtn.addEventListener('click', () => {
     const value = blacklistInput.value.trim();
@@ -224,6 +189,13 @@ const render = (data: Data): HTMLDivElement => {
     }
   });
 
+  blacklistInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      blacklistAddBtn.click();
+    }
+  });
+
   whitelistAddBtn.addEventListener('click', () => {
     const value = whitelistInput.value.trim();
     if (value && !currentData.whitelist.includes(value)) {
@@ -233,6 +205,13 @@ const render = (data: Data): HTMLDivElement => {
       };
       Effect.runPromise(saveData(newData)).then(() => updateUI(newData));
       whitelistInput.value = '';
+    }
+  });
+
+  whitelistInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      whitelistAddBtn.click();
     }
   });
 
@@ -253,7 +232,3 @@ const program = pipe(
 );
 
 Effect.runPromise(program);
-
-/*
- * MAIN FLOW - END
- */

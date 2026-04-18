@@ -48,12 +48,21 @@ const isUrlWhitelisted = (url: string, whitelist: string[]): boolean => {
         ) {
           return true;
         }
+      } else if (hostname === entry) {
+        return true;
       }
     }
     return false;
   } catch {
     return false;
   }
+};
+
+const toUrlFilter = (pattern: string): string => {
+  if (pattern.includes('/')) {
+    return `||${pattern}^`;
+  }
+  return `||${pattern}`;
 };
 
 const updateRules = (): void => {
@@ -70,13 +79,13 @@ const updateRules = (): void => {
   cachedData.whitelist.forEach((item) => {
     rules.push({
       id: rules.length + 1,
-      priority: 1,
+      priority: 2,
       action: {
         type: 'allow',
       },
       condition: {
         resourceTypes: ['main_frame'],
-        urlFilter: item,
+        urlFilter: toUrlFilter(item),
       },
     });
   });
@@ -84,7 +93,7 @@ const updateRules = (): void => {
   cachedData.blacklist.forEach((item) => {
     rules.push({
       id: rules.length + 1,
-      priority: 2,
+      priority: 1,
       action: {
         type: 'redirect',
         redirect: {
@@ -93,7 +102,7 @@ const updateRules = (): void => {
       },
       condition: {
         resourceTypes: ['main_frame'],
-        urlFilter: item,
+        urlFilter: toUrlFilter(item),
       },
     });
   });

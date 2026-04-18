@@ -13,8 +13,5 @@
   },
   "peerDependencies": {
     "typescript": "^5"
-  },
-  "dependencies": {
-    "effect": "^3.19.12"
   }
 }

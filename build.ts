@@ -1,4 +1,3 @@
-import { Effect, pipe } from 'effect';
 import { build } from 'esbuild';
 
 import type { BunFile } from 'bun';
@@ -8,7 +7,7 @@ type Files = BunFile[];
 const TEMPORARY_PATH = 'tmp/';
 const BUILD_PATH = 'build/';
 
-const getStatics = (): Effect.Effect<Files> => {
+const getStatics = async (): Promise<Files> => {
   const files: Files = [];
 
   const manifest = Bun.file('manifest.json');
@@ -23,58 +22,59 @@ const getStatics = (): Effect.Effect<Files> => {
   const icon = Bun.file('icon.png');
   if (icon) files.push(icon);
 
-  return Effect.succeed(files);
+  return files;
 };
 
-const compileSource = (entry: string, dest: string): Effect.Effect<number> =>
-  Effect.promise(async () => {
-    await build({
-      entryPoints: [entry],
-      outfile: dest,
-      bundle: true,
-      format: 'iife',
-      target: ['es6'],
-      minify: true,
-      sourcemap: false,
-    });
-
-    return 1;
+const compileSource = async (entry: string, dest: string): Promise<number> => {
+  await build({
+    entryPoints: [entry],
+    outfile: dest,
+    bundle: true,
+    format: 'iife',
+    target: ['es6'],
+    minify: true,
+    sourcemap: false,
   });
 
-const getCompiledSources = (): Effect.Effect<Files> => Effect.gen(function* () {
+  return 1;
+};
+
+const getCompiledSources = async (): Promise<Files> => {
   const popupDest = `${TEMPORARY_PATH}/index.js`;
-  yield* compileSource('src/popup.ts', popupDest);
+  await compileSource('src/popup.ts', popupDest);
 
   const bgDest = `${TEMPORARY_PATH}/background.js`;
-  yield* compileSource('src/background.ts', bgDest);
+  await compileSource('src/background.ts', bgDest);
 
   return [Bun.file(popupDest), Bun.file(bgDest)];
-});
-
-const mergeInput = ([statics, sources]: [Files, Files]): Effect.Effect<Files> => {
-  const files: Files = [...statics, ...sources];
-  return Effect.succeed(files);
 };
 
-const writeOutput = (files: Files): Effect.Effect<boolean> =>
-  Effect.promise(async () => {
-    const fileWrites = files.map((file) => {
-      const name = file.name || Bun.randomUUIDv7();
-      const isTmp = name.startsWith(TEMPORARY_PATH);
-      const path = `${BUILD_PATH}/${isTmp ? name.substring(TEMPORARY_PATH.length) : name}`;
-      const output = Bun.file(path);
+const mergeInput = ([statics, sources]: [Files, Files]): Files => {
+  const files: Files = [...statics, ...sources];
+  return files;
+};
 
-      return Bun.write(output, file);
-    });
+const writeOutput = async (files: Files): Promise<boolean> => {
+  const fileWrites = files.map((file) => {
+    const name = file.name || Bun.randomUUIDv7();
+    const isTmp = name.startsWith(TEMPORARY_PATH);
+    const path = `${BUILD_PATH}/${isTmp ? name.substring(TEMPORARY_PATH.length) : name}`;
+    const output = Bun.file(path);
 
-    await Promise.all(fileWrites);
-    return Promise.resolve(true);
+    return Bun.write(output, file);
   });
 
-const buildPipeline = pipe(
-  Effect.all([getStatics(), getCompiledSources()]),
-  Effect.flatMap(([statics, sources]) => mergeInput([statics, sources])),
-  Effect.flatMap(writeOutput),
-);
+  await Promise.all(fileWrites);
+  return true;
+};
 
-Effect.runPromise(buildPipeline);
+const buildPipeline = async (): Promise<void> => {
+  const [statics, sources] = await Promise.all([
+    getStatics(),
+    getCompiledSources(),
+  ]);
+  const files = mergeInput([statics, sources]);
+  await writeOutput(files);
+};
+
+buildPipeline();

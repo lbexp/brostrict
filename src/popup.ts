@@ -1,5 +1,3 @@
-import { Effect, pipe } from 'effect';
-
 interface Data {
   blacklist: string[];
   whitelist: string[];
@@ -79,22 +77,20 @@ const createListCard = (
   return { card, list, addBtn, input };
 };
 
-const retrieveData = (): Effect.Effect<Data> =>
-  Effect.promise(async () => {
-    const result = await chrome.storage.local.get(STORAGE_KEY);
-    return (
-      result[STORAGE_KEY] || {
-        blacklist: [],
-        whitelist: [],
-        active: true,
-      }
-    );
-  });
+const retrieveData = async (): Promise<Data> => {
+  const result = await chrome.storage.local.get(STORAGE_KEY);
+  return (
+    result[STORAGE_KEY] || {
+      blacklist: [],
+      whitelist: [],
+      active: true,
+    }
+  );
+};
 
-const saveData = (data: Data): Effect.Effect<void> =>
-  Effect.promise(async () => {
-    await chrome.storage.local.set({ [STORAGE_KEY]: data });
-  });
+const saveData = async (data: Data): Promise<void> => {
+  await chrome.storage.local.set({ [STORAGE_KEY]: data });
+};
 
 const renderList = (
   list: HTMLElement,
@@ -158,7 +154,7 @@ const render = (data: Data): HTMLDivElement => {
       ...currentData,
       blacklist: currentData.blacklist.filter((_, i) => i !== index),
     };
-    Effect.runPromise(saveData(newData)).then(() => updateUI(newData));
+    saveData(newData).then(() => updateUI(newData));
   });
 
   renderList(whitelistList, data.whitelist, (index) => {
@@ -166,14 +162,14 @@ const render = (data: Data): HTMLDivElement => {
       ...currentData,
       whitelist: currentData.whitelist.filter((_, i) => i !== index),
     };
-    Effect.runPromise(saveData(newData)).then(() => updateUI(newData));
+    saveData(newData).then(() => updateUI(newData));
   });
 
   const toggle = document.getElementById('toggle');
   if (toggle) {
     toggle.addEventListener('click', () => {
       const newData = { ...currentData, active: !currentData.active };
-      Effect.runPromise(saveData(newData)).then(() => updateUI(newData));
+      saveData(newData).then(() => updateUI(newData));
     });
   }
 
@@ -184,7 +180,7 @@ const render = (data: Data): HTMLDivElement => {
         ...currentData,
         blacklist: [...currentData.blacklist, value],
       };
-      Effect.runPromise(saveData(newData)).then(() => updateUI(newData));
+      saveData(newData).then(() => updateUI(newData));
       blacklistInput.value = '';
     }
   });
@@ -203,7 +199,7 @@ const render = (data: Data): HTMLDivElement => {
         ...currentData,
         whitelist: [...currentData.whitelist, value],
       };
-      Effect.runPromise(saveData(newData)).then(() => updateUI(newData));
+      saveData(newData).then(() => updateUI(newData));
       whitelistInput.value = '';
     }
   });
@@ -218,17 +214,13 @@ const render = (data: Data): HTMLDivElement => {
   return container;
 };
 
-const program = pipe(
-  retrieveData(),
-  Effect.flatMap((data) =>
-    Effect.sync(() => {
-      const container = render(data);
-      const app = document.getElementById('app');
-      if (app) {
-        app.appendChild(container);
-      }
-    }),
-  ),
-);
+const init = async (): Promise<void> => {
+  const data = await retrieveData();
+  const container = render(data);
+  const app = document.getElementById('app');
+  if (app) {
+    app.appendChild(container);
+  }
+};
 
-Effect.runPromise(program);
+init();

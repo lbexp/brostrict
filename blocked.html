@@ -5,7 +5,7 @@
     <title>Blocked - Brostrict</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700;600&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet" />
     <style>
       * {
         margin: 0;
@@ -13,98 +13,108 @@
         box-sizing: border-box;
       }
       body {
-        font-family: 'Fredoka', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-family: 'Comfortaa', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         min-height: 100vh;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        background: #faf8f3;
+        background: #f5f2eb;
         color: #1a1a1a;
-        padding: 24px;
+        padding: 20px;
         text-align: center;
       }
-      .mascot {
-        width: 120px;
-        height: 120px;
-        margin: 0 auto 24px;
+      .container {
+        max-width: 420px;
+        width: 100%;
+      }
+      .icon {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 20px;
         background: #ffffff;
         border: 4px solid #000000;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 3.5rem;
-        animation: bounce 2s ease-in-out infinite;
-      }
-      @keyframes bounce {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-8px); }
+        font-size: 2.5rem;
+        color: #000000;
+        font-weight: 700;
       }
       h1 {
-        font-size: 2.5rem;
+        font-size: 2.2rem;
         font-weight: 700;
         color: #000000;
-        margin-bottom: 24px;
+        margin-bottom: 8px;
         letter-spacing: 1px;
+      }
+      .subtitle {
+        font-size: 0.75rem;
+        color: #333;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 16px;
+        font-weight: 600;
       }
       .notice {
         background: #ffffff;
         border: 3px solid #000000;
-        border-radius: 16px;
-        padding: 14px 20px;
-        margin-bottom: 24px;
-        font-size: 0.85rem;
+        border-radius: 12px;
+        padding: 12px 16px;
+        margin-bottom: 20px;
+        font-size: 0.8rem;
+        color: #000000;
         font-weight: 600;
         display: none;
       }
-      .actions {
+      .button-group {
         display: flex;
         gap: 12px;
         justify-content: center;
         flex-wrap: wrap;
       }
       button {
-        padding: 14px 28px;
-        font-size: 1rem;
-        font-weight: 600;
-        font-family: 'Fredoka', sans-serif;
-        border: 3px solid #000000;
-        border-radius: 14px;
-        cursor: pointer;
-        transition: all 0.15s;
-      }
-      button.primary {
         background: #000000;
         color: #ffffff;
+        border: 3px solid #000000;
+        padding: 14px 28px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        font-family: 'Comfortaa', sans-serif;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
       }
-      button.primary:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 4px 0 #000000;
+      button:hover {
+        background: #333333;
+        transform: translateY(-2px);
+      }
+      button:active {
+        transform: translateY(0);
       }
       button.secondary {
         background: #ffffff;
         color: #000000;
       }
       button.secondary:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 4px 0 #000000;
-      }
-      button:active {
-        transform: translateY(0);
-        box-shadow: none;
+        background: #f0f0f0;
+        transform: translateY(-2px);
       }
     </style>
   </head>
   <body>
-    <div class="mascot">🛡️</div>
-    <h1>Blocked!</h1>
-    <div class="notice" id="notice">
-      Whitelisted — you may proceed
-    </div>
-    <div class="actions">
-      <button id="proceed-btn" class="primary" style="display: none;">Proceed</button>
-      <button id="go-back-btn" class="secondary">Go Back</button>
+    <div class="container">
+      <div class="icon">✕</div>
+      <h1>Blocked</h1>
+      <p class="subtitle">Site restricted by Brostrict</p>
+      <div class="notice" id="notice">
+        This URL is whitelisted — you may proceed
+      </div>
+      <div class="button-group">
+        <button id="proceed-btn" style="display: none;">Proceed</button>
+        <button id="go-back-btn" class="secondary">Go Back</button>
+      </div>
     </div>
     <script>
       let detectedUrl = '';

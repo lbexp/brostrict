@@ -6,69 +6,78 @@ interface Data {
 
 const STORAGE_KEY = 'brostrict_data';
 
-const createMainSwitch = (
+const createContainer = (): HTMLDivElement => {
+  const container = document.createElement('div');
+  container.className = 'container';
+  return container;
+};
+
+const createProtectionCard = (
   active: boolean,
   onToggle: () => void,
 ): HTMLDivElement => {
-  const wrap = document.createElement('div');
-  wrap.className = 'main-switch';
-  wrap.addEventListener('click', onToggle);
+  const card = document.createElement('div');
+  card.className = 'card';
 
-  const label = document.createElement('span');
-  label.className = 'switch-label';
-  label.textContent = active ? 'ON' : 'OFF';
-  wrap.appendChild(label);
+  const cardHeader = document.createElement('div');
+  cardHeader.className = 'card-header';
 
-  const pill = document.createElement('div');
-  pill.className = active ? 'switch-pill active' : 'switch-pill';
+  const title = document.createElement('h3');
+  title.textContent = 'Protection';
+  cardHeader.appendChild(title);
 
-  const dot = document.createElement('div');
-  dot.className = 'switch-dot';
-  pill.appendChild(dot);
+  const toggle = document.createElement('button');
+  toggle.className = active ? 'toggle active' : 'toggle inactive';
+  toggle.textContent = active ? 'On' : 'Off';
+  toggle.addEventListener('click', onToggle);
+  cardHeader.appendChild(toggle);
 
-  wrap.appendChild(pill);
-  return wrap;
+  card.appendChild(cardHeader);
+  return card;
 };
 
-const createSection = (
+const createListCard = (
   id: string,
-  type: 'block' | 'allow',
+  title: string,
   placeholder: string,
 ): {
-  section: HTMLDivElement;
-  items: HTMLDivElement;
+  card: HTMLDivElement;
+  list: HTMLUListElement;
   addBtn: HTMLButtonElement;
   input: HTMLInputElement;
 } => {
-  const section = document.createElement('div');
-  section.className = 'section';
+  const card = document.createElement('div');
+  card.className = 'card';
 
-  const title = document.createElement('div');
-  title.className = `section-title ${type}`;
-  title.textContent = type === 'block' ? 'Block Sites' : 'Allow URLs';
-  section.appendChild(title);
+  const cardHeader = document.createElement('div');
+  cardHeader.className = 'card-header';
 
-  const inputWrap = document.createElement('div');
-  inputWrap.className = 'input-wrap';
+  const titleEl = document.createElement('h3');
+  titleEl.textContent = title;
+  cardHeader.appendChild(titleEl);
+
+  card.appendChild(cardHeader);
+
+  const inputRow = document.createElement('div');
+  inputRow.className = 'input-row';
 
   const input = document.createElement('input');
   input.type = 'text';
   input.placeholder = placeholder;
 
   const addBtn = document.createElement('button');
-  addBtn.className = 'btn';
-  addBtn.textContent = '+';
+  addBtn.textContent = 'Add';
 
-  inputWrap.appendChild(input);
-  inputWrap.appendChild(addBtn);
-  section.appendChild(inputWrap);
+  inputRow.appendChild(input);
+  inputRow.appendChild(addBtn);
+  card.appendChild(inputRow);
 
-  const items = document.createElement('div');
-  items.id = id;
-  items.className = 'items';
-  section.appendChild(items);
+  const list = document.createElement('ul');
+  list.id = id;
+  list.className = 'list';
+  card.appendChild(list);
 
-  return { section, items, addBtn, input };
+  return { card, list, addBtn, input };
 };
 
 const retrieveData = async (): Promise<Data> => {
@@ -86,56 +95,56 @@ const saveData = async (data: Data): Promise<void> => {
   await chrome.storage.local.set({ [STORAGE_KEY]: data });
 };
 
-const renderItems = (
-  container: HTMLElement,
+const renderList = (
+  list: HTMLElement,
   items: string[],
   onRemove: (index: number) => void,
 ): void => {
-  container.innerHTML = '';
+  list.innerHTML = '';
   items.forEach((item, index) => {
-    const div = document.createElement('div');
-    div.className = 'item';
+    const li = document.createElement('li');
+    li.className = 'list-item';
 
     const text = document.createElement('span');
     text.textContent = item;
-    div.appendChild(text);
+    li.appendChild(text);
 
-    const del = document.createElement('button');
-    del.textContent = '×';
-    del.className = 'del';
-    del.addEventListener('click', () => onRemove(index));
-    div.appendChild(del);
+    const removeBtn = document.createElement('button');
+    removeBtn.textContent = '×';
+    removeBtn.className = 'remove-btn';
+    removeBtn.addEventListener('click', () => onRemove(index));
+    li.appendChild(removeBtn);
 
-    container.appendChild(div);
+    list.appendChild(li);
   });
 };
 
 const render = (data: Data): HTMLDivElement => {
-  const container = document.createElement('div');
+  const container = createContainer();
 
   let currentData = data;
 
-  const mainSwitch = createMainSwitch(data.active, () => {
+  const protectionCard = createProtectionCard(data.active, () => {
     const newData = { ...currentData, active: !currentData.active };
     saveData(newData).then(() => updateUI(newData));
   });
-  container.appendChild(mainSwitch);
+  container.appendChild(protectionCard);
 
   const {
-    section: blockSection,
-    items: blockItems,
-    addBtn: blockAddBtn,
-    input: blockInput,
-  } = createSection('blacklist', 'block', 'example.com');
-  container.appendChild(blockSection);
+    card: blacklistCard,
+    list: blacklistList,
+    addBtn: blacklistAddBtn,
+    input: blacklistInput,
+  } = createListCard('blacklist', 'Blacklist', 'youtube.com');
+  container.appendChild(blacklistCard);
 
   const {
-    section: allowSection,
-    items: allowItems,
-    addBtn: allowAddBtn,
-    input: allowInput,
-  } = createSection('whitelist', 'allow', 'example.com/page');
-  container.appendChild(allowSection);
+    card: whitelistCard,
+    list: whitelistList,
+    addBtn: whitelistAddBtn,
+    input: whitelistInput,
+  } = createListCard('whitelist', 'Whitelist', 'youtube.com/video');
+  container.appendChild(whitelistCard);
 
   const updateUI = (newData: Data): void => {
     currentData = newData;
@@ -146,7 +155,7 @@ const render = (data: Data): HTMLDivElement => {
     }
   };
 
-  renderItems(blockItems, data.blacklist, (index) => {
+  renderList(blacklistList, data.blacklist, (index) => {
     const newData = {
       ...currentData,
       blacklist: currentData.blacklist.filter((_, i) => i !== index),
@@ -154,7 +163,7 @@ const render = (data: Data): HTMLDivElement => {
     saveData(newData).then(() => updateUI(newData));
   });
 
-  renderItems(allowItems, data.whitelist, (index) => {
+  renderList(whitelistList, data.whitelist, (index) => {
     const newData = {
       ...currentData,
       whitelist: currentData.whitelist.filter((_, i) => i !== index),
@@ -162,41 +171,41 @@ const render = (data: Data): HTMLDivElement => {
     saveData(newData).then(() => updateUI(newData));
   });
 
-  blockAddBtn.addEventListener('click', () => {
-    const value = blockInput.value.trim();
+  blacklistAddBtn.addEventListener('click', () => {
+    const value = blacklistInput.value.trim();
     if (value && !currentData.blacklist.includes(value)) {
       const newData = {
         ...currentData,
         blacklist: [...currentData.blacklist, value],
       };
       saveData(newData).then(() => updateUI(newData));
-      blockInput.value = '';
+      blacklistInput.value = '';
     }
   });
 
-  blockInput.addEventListener('keydown', (e) => {
+  blacklistInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      blockAddBtn.click();
+      blacklistAddBtn.click();
     }
   });
 
-  allowAddBtn.addEventListener('click', () => {
-    const value = allowInput.value.trim();
+  whitelistAddBtn.addEventListener('click', () => {
+    const value = whitelistInput.value.trim();
     if (value && !currentData.whitelist.includes(value)) {
       const newData = {
         ...currentData,
         whitelist: [...currentData.whitelist, value],
       };
       saveData(newData).then(() => updateUI(newData));
-      allowInput.value = '';
+      whitelistInput.value = '';
     }
   });
 
-  allowInput.addEventListener('keydown', (e) => {
+  whitelistInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      allowAddBtn.click();
+      whitelistAddBtn.click();
     }
   });
 

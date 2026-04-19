@@ -5,7 +5,7 @@
     <title>Brostrict</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;600&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600;700&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet" />
     <style>
       * {
         margin: 0;
@@ -17,42 +17,34 @@
         width: 320px;
         background: #0a0a0a;
         color: #e5e5e5;
-        padding: 24px 20px;
+        padding: 16px;
       }
       .header {
         text-align: center;
-        margin-bottom: 24px;
+        margin-bottom: 12px;
       }
       .header h1 {
         font-size: 1.6rem;
-        font-weight: 600;
+        font-weight: 700;
         color: #ffffff;
         letter-spacing: -0.5px;
-        margin-bottom: 4px;
-      }
-      .header p {
-        font-size: 0.7rem;
-        color: #555;
-        font-weight: 300;
-        letter-spacing: 2px;
-        text-transform: uppercase;
       }
       .container {
         display: flex;
         flex-direction: column;
-        gap: 16px;
+        gap: 12px;
       }
       .card {
         background: #111111;
         border: 1px solid #1e1e1e;
         border-radius: 16px;
-        padding: 16px;
+        padding: 12px;
       }
       .card-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 12px;
+        margin-bottom: 8px;
       }
       .card-header h3 {
         font-size: 0.7rem;
@@ -62,7 +54,7 @@
         font-weight: 600;
       }
       .toggle {
-        padding: 6px 14px;
+        padding: 4px 12px;
         border: 1px solid #333;
         border-radius: 20px;
         font-size: 0.7rem;
@@ -72,6 +64,7 @@
         text-transform: uppercase;
         letter-spacing: 0.5px;
         font-family: 'Comfortaa', sans-serif;
+        background: transparent;
       }
       .toggle.active {
         background: #ffffff;
@@ -94,12 +87,12 @@
         min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
-        padding: 12px 14px;
+        padding: 10px 12px;
         border: 1px solid #222;
         border-radius: 12px;
         background: #0a0a0a;
         color: #e5e5e5;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         font-family: 'IBM Plex Mono', monospace;
       }
       .input-row input:focus {
@@ -111,29 +104,29 @@
         font-family: 'Comfortaa', sans-serif;
       }
       .input-row button {
-        padding: 12px 20px;
+        padding: 10px 16px;
         background: #ffffff;
         color: #0a0a0a;
         border: none;
         border-radius: 12px;
         cursor: pointer;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         font-weight: 600;
         font-family: 'Comfortaa', sans-serif;
         transition: all 0.2s;
       }
       .input-row button:hover {
         background: #e5e5e5;
-        transform: translateY(-1px);
+        transform: translateY(-2px);
       }
       .input-row button:active {
         transform: translateY(0);
       }
       .list {
         list-style: none;
-        max-height: 100px;
+        max-height: 80px;
         overflow-y: auto;
-        margin-top: 12px;
+        margin-top: 8px;
       }
       .list::-webkit-scrollbar {
         width: 4px;
@@ -149,56 +142,40 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 10px 12px;
+        padding: 8px 10px;
         background: #0a0a0a;
         border: 1px solid #1a1a1a;
         border-radius: 10px;
         margin-bottom: 6px;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         overflow: hidden;
       }
       .list-item span {
         word-break: break-all;
         color: #777;
         font-family: 'IBM Plex Mono', monospace;
-        font-size: 0.75rem;
+        font-size: 0.7rem;
       }
       .remove-btn {
         background: transparent;
         color: #444;
         border: none;
-        font-size: 0.9rem;
+        font-size: 1rem;
         cursor: pointer;
-        padding: 0 6px;
-        margin-left: 8px;
+        padding: 0 4px;
+        margin-left: 6px;
         transition: color 0.2s;
       }
       .remove-btn:hover {
         color: #888;
-      }
-      .footer {
-        text-align: center;
-        margin-top: 20px;
-        padding-top: 16px;
-        border-top: 1px solid #111;
-      }
-      .footer p {
-        font-size: 0.6rem;
-        color: #333;
-        letter-spacing: 1px;
-        text-transform: uppercase;
       }
     </style>
   </head>
   <body>
     <div class="header">
       <h1>Brostrict</h1>
-      <p>Block Distractions</p>
     </div>
     <div id="app"></div>
-    <div class="footer">
-      <p>Stay Focused</p>
-    </div>
     <script src="index.js"></script>
   </body>
 </html>

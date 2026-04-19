@@ -5,7 +5,7 @@
     <title>Brostrict</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700;600&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600;700&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet" />
     <style>
       * {
         margin: 0;
@@ -15,8 +15,8 @@
       body {
         font-family: 'Comfortaa', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         width: 320px;
-        background: #f5f2eb;
-        color: #1a1a1a;
+        background: #0a0a0a;
+        color: #e5e5e5;
         padding: 16px;
       }
       .header {
@@ -24,10 +24,10 @@
         margin-bottom: 12px;
       }
       .header h1 {
-        font-size: 1.8rem;
+        font-size: 1.6rem;
         font-weight: 700;
-        color: #000000;
-        letter-spacing: 1px;
+        color: #ffffff;
+        letter-spacing: -0.5px;
       }
       .container {
         display: flex;
@@ -35,8 +35,8 @@
         gap: 12px;
       }
       .card {
-        background: #ffffff;
-        border: 3px solid #000000;
+        background: #111111;
+        border: 1px solid #1e1e1e;
         border-radius: 16px;
         padding: 12px;
       }
@@ -47,32 +47,34 @@
         margin-bottom: 8px;
       }
       .card-header h3 {
-        font-size: 0.75rem;
-        color: #000000;
+        font-size: 0.7rem;
+        color: #666;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        font-weight: 700;
+        letter-spacing: 1.5px;
+        font-weight: 600;
       }
       .toggle {
         padding: 4px 12px;
-        border: 3px solid #000000;
+        border: 1px solid #333;
         border-radius: 20px;
         font-size: 0.7rem;
-        font-weight: 700;
+        font-weight: 600;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.3s;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         font-family: 'Comfortaa', sans-serif;
-        background: #ffffff;
+        background: transparent;
       }
       .toggle.active {
-        background: #000000;
-        color: #ffffff;
+        background: #ffffff;
+        color: #0a0a0a;
+        border-color: #ffffff;
       }
       .toggle.inactive {
-        background: #ffffff;
-        color: #000000;
+        background: transparent;
+        color: #444;
+        border-color: #333;
       }
       .input-row {
         display: flex;
@@ -86,35 +88,35 @@
         overflow: hidden;
         text-overflow: ellipsis;
         padding: 10px 12px;
-        border: 3px solid #000000;
+        border: 1px solid #222;
         border-radius: 12px;
-        background: #ffffff;
-        color: #000000;
+        background: #0a0a0a;
+        color: #e5e5e5;
         font-size: 0.8rem;
         font-family: 'IBM Plex Mono', monospace;
       }
       .input-row input:focus {
         outline: none;
-        background: #fafafa;
+        border-color: #444;
       }
       .input-row input::placeholder {
-        color: #888;
+        color: #333;
         font-family: 'Comfortaa', sans-serif;
       }
       .input-row button {
         padding: 10px 16px;
-        background: #000000;
-        color: #ffffff;
-        border: 3px solid #000000;
+        background: #ffffff;
+        color: #0a0a0a;
+        border: none;
         border-radius: 12px;
         cursor: pointer;
         font-size: 0.75rem;
-        font-weight: 700;
+        font-weight: 600;
         font-family: 'Comfortaa', sans-serif;
         transition: all 0.2s;
       }
       .input-row button:hover {
-        background: #333333;
+        background: #e5e5e5;
         transform: translateY(-2px);
       }
       .input-row button:active {
@@ -127,22 +129,22 @@
         margin-top: 8px;
       }
       .list::-webkit-scrollbar {
-        width: 6px;
+        width: 4px;
       }
       .list::-webkit-scrollbar-track {
         background: transparent;
       }
       .list::-webkit-scrollbar-thumb {
-        background: #000000;
-        border-radius: 3px;
+        background: #222;
+        border-radius: 2px;
       }
       .list-item {
         display: flex;
         justify-content: space-between;
         align-items: center;
         padding: 8px 10px;
-        background: #ffffff;
-        border: 2px solid #000000;
+        background: #0a0a0a;
+        border: 1px solid #1a1a1a;
         border-radius: 10px;
         margin-bottom: 6px;
         font-size: 0.75rem;
@@ -150,23 +152,22 @@
       }
       .list-item span {
         word-break: break-all;
-        color: #333;
+        color: #777;
         font-family: 'IBM Plex Mono', monospace;
         font-size: 0.7rem;
       }
       .remove-btn {
         background: transparent;
-        color: #000000;
+        color: #444;
         border: none;
         font-size: 1rem;
-        font-weight: 700;
         cursor: pointer;
         padding: 0 4px;
         margin-left: 6px;
         transition: color 0.2s;
       }
       .remove-btn:hover {
-        color: #666;
+        color: #888;
       }
     </style>
   </head>

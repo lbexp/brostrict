@@ -156,6 +156,24 @@
         font-family: 'IBM Plex Mono', monospace;
         font-size: 0.7rem;
       }
+      .item-actions {
+        display: flex;
+        gap: 4px;
+        margin-left: 6px;
+        flex-shrink: 0;
+      }
+      .edit-btn {
+        background: transparent;
+        color: #444;
+        border: none;
+        font-size: 0.85rem;
+        cursor: pointer;
+        padding: 0 4px;
+        transition: color 0.2s;
+      }
+      .edit-btn:hover {
+        color: #888;
+      }
       .remove-btn {
         background: transparent;
         color: #444;
@@ -163,11 +181,58 @@
         font-size: 1rem;
         cursor: pointer;
         padding: 0 4px;
-        margin-left: 6px;
         transition: color 0.2s;
       }
       .remove-btn:hover {
         color: #888;
+      }
+      .list-item.editing {
+        padding: 6px 8px;
+        gap: 8px;
+      }
+      .edit-input {
+        flex: 1;
+        min-width: 0;
+        padding: 6px 8px;
+        border: 1px solid #444;
+        border-radius: 8px;
+        background: #0a0a0a;
+        color: #e5e5e5;
+        font-size: 0.7rem;
+        font-family: 'IBM Plex Mono', monospace;
+      }
+      .edit-input:focus {
+        outline: none;
+        border-color: #666;
+      }
+      .edit-actions {
+        display: flex;
+        gap: 4px;
+        flex-shrink: 0;
+      }
+      .save-btn {
+        background: transparent;
+        color: #4a9;
+        border: none;
+        font-size: 0.85rem;
+        cursor: pointer;
+        padding: 0 4px;
+        transition: color 0.2s;
+      }
+      .save-btn:hover {
+        color: #6c9;
+      }
+      .cancel-btn {
+        background: transparent;
+        color: #944;
+        border: none;
+        font-size: 0.85rem;
+        cursor: pointer;
+        padding: 0 4px;
+        transition: color 0.2s;
+      }
+      .cancel-btn:hover {
+        color: #c66;
       }
     </style>
   </head>

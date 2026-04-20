@@ -99,6 +99,7 @@ const renderList = (
   list: HTMLElement,
   items: string[],
   onRemove: (index: number) => void,
+  onEdit: (index: number, newValue: string) => void,
 ): void => {
   list.innerHTML = '';
   items.forEach((item, index) => {
@@ -109,12 +110,67 @@ const renderList = (
     text.textContent = item;
     li.appendChild(text);
 
+    const actions = document.createElement('div');
+    actions.className = 'item-actions';
+
+    const editBtn = document.createElement('button');
+    editBtn.textContent = '✎';
+    editBtn.className = 'edit-btn';
+    editBtn.addEventListener('click', () => {
+      li.classList.add('editing');
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = item;
+      input.className = 'edit-input';
+
+      const saveBtn = document.createElement('button');
+      saveBtn.textContent = '✓';
+      saveBtn.className = 'save-btn';
+
+      const cancelBtn = document.createElement('button');
+      cancelBtn.textContent = '✕';
+      cancelBtn.className = 'cancel-btn';
+
+      const editActions = document.createElement('div');
+      editActions.className = 'edit-actions';
+      editActions.appendChild(saveBtn);
+      editActions.appendChild(cancelBtn);
+
+      li.innerHTML = '';
+      li.appendChild(input);
+      li.appendChild(editActions);
+      input.focus();
+
+      const save = (): void => {
+        const newValue = input.value.trim();
+        if (newValue && newValue !== item && !items.includes(newValue)) {
+          onEdit(index, newValue);
+        } else if (newValue === item || items.includes(newValue)) {
+          renderList(list, items, onRemove, onEdit);
+        }
+      };
+
+      const cancel = (): void => {
+        renderList(list, items, onRemove, onEdit);
+      };
+
+      saveBtn.addEventListener('click', save);
+      cancelBtn.addEventListener('click', cancel);
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') save();
+        if (e.key === 'Escape') cancel();
+      });
+    });
+    actions.appendChild(editBtn);
+
     const removeBtn = document.createElement('button');
     removeBtn.textContent = '×';
     removeBtn.className = 'remove-btn';
     removeBtn.addEventListener('click', () => onRemove(index));
-    li.appendChild(removeBtn);
+    actions.appendChild(removeBtn);
 
+    li.appendChild(actions);
     list.appendChild(li);
   });
 };
@@ -155,21 +211,41 @@ const render = (data: Data): HTMLDivElement => {
     }
   };
 
-  renderList(blacklistList, data.blacklist, (index) => {
-    const newData = {
-      ...currentData,
-      blacklist: currentData.blacklist.filter((_, i) => i !== index),
-    };
-    saveData(newData).then(() => updateUI(newData));
-  });
+  renderList(
+    blacklistList,
+    data.blacklist,
+    (index) => {
+      const newData = {
+        ...currentData,
+        blacklist: currentData.blacklist.filter((_, i) => i !== index),
+      };
+      saveData(newData).then(() => updateUI(newData));
+    },
+    (index, newValue) => {
+      const newBlacklist = [...currentData.blacklist];
+      newBlacklist[index] = newValue;
+      const newData = { ...currentData, blacklist: newBlacklist };
+      saveData(newData).then(() => updateUI(newData));
+    },
+  );
 
-  renderList(whitelistList, data.whitelist, (index) => {
-    const newData = {
-      ...currentData,
-      whitelist: currentData.whitelist.filter((_, i) => i !== index),
-    };
-    saveData(newData).then(() => updateUI(newData));
-  });
+  renderList(
+    whitelistList,
+    data.whitelist,
+    (index) => {
+      const newData = {
+        ...currentData,
+        whitelist: currentData.whitelist.filter((_, i) => i !== index),
+      };
+      saveData(newData).then(() => updateUI(newData));
+    },
+    (index, newValue) => {
+      const newWhitelist = [...currentData.whitelist];
+      newWhitelist[index] = newValue;
+      const newData = { ...currentData, whitelist: newWhitelist };
+      saveData(newData).then(() => updateUI(newData));
+    },
+  );
 
   blacklistAddBtn.addEventListener('click', () => {
     const value = blacklistInput.value.trim();

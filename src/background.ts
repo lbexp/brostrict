@@ -65,6 +65,31 @@ const toUrlFilter = (pattern: string): string => {
   return `||${pattern}`;
 };
 
+const isUrlBlacklisted = (url: string, blacklist: string[]): boolean => {
+  try {
+    const urlObj = new URL(url);
+    const hostname = urlObj.hostname;
+    const pathname = urlObj.pathname;
+
+    for (const entry of blacklist) {
+      if (entry.includes('/')) {
+        const [blacklistHost, blacklistPath] = entry.split('/', 2);
+        if (
+          hostname === blacklistHost &&
+          pathname.startsWith('/' + blacklistPath)
+        ) {
+          return true;
+        }
+      } else if (hostname === entry) {
+        return true;
+      }
+    }
+    return false;
+  } catch {
+    return false;
+  }
+};
+
 const updateRules = (): void => {
   if (!cachedData.active) {
     chrome.declarativeNetRequest.updateDynamicRules({
@@ -149,6 +174,18 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     });
   }
   return true;
+});
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (!cachedData.active || !changeInfo.url || !tab.url) return;
+
+  const url = tab.url;
+
+  if (isUrlWhitelisted(url, cachedData.whitelist)) return;
+
+  if (isUrlBlacklisted(url, cachedData.blacklist)) {
+    chrome.tabs.update(tabId, { url: BLOCKED_PAGE });
+  }
 });
 
 /*

@@ -31,6 +31,9 @@ const getStatics = async (): Promise<Files> => {
   const icon128 = Bun.file('icon-128.png');
   if (icon128) files.push(icon128);
 
+  const iconStore = Bun.file('icon-store.png');
+  if (iconStore) files.push(iconStore);
+
   return files;
 };
 

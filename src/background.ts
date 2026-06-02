@@ -13,7 +13,7 @@ interface Data {
  */
 
 /*
- * VARIAGBLES - START
+ * VARIABLES - START
  */
 
 const STORAGE_KEY = 'brostrict_data';
@@ -41,7 +41,8 @@ const isUrlWhitelisted = (url: string, whitelist: string[]): boolean => {
 
     for (const entry of whitelist) {
       if (entry.includes('/')) {
-        const [whitelistHost, whitelistPath] = entry.split('/', 2);
+        const [whitelistHost, ...pathParts] = entry.split('/');
+        const whitelistPath = pathParts.join('/');
         if (
           hostname === whitelistHost &&
           pathname.startsWith('/' + whitelistPath)
@@ -59,9 +60,6 @@ const isUrlWhitelisted = (url: string, whitelist: string[]): boolean => {
 };
 
 const toUrlFilter = (pattern: string): string => {
-  if (pattern.includes('/')) {
-    return `||${pattern}^`;
-  }
   return `||${pattern}`;
 };
 
@@ -73,7 +71,8 @@ const isUrlBlacklisted = (url: string, blacklist: string[]): boolean => {
 
     for (const entry of blacklist) {
       if (entry.includes('/')) {
-        const [blacklistHost, blacklistPath] = entry.split('/', 2);
+        const [blacklistHost, ...pathParts] = entry.split('/');
+        const blacklistPath = pathParts.join('/');
         if (
           hostname === blacklistHost &&
           pathname.startsWith('/' + blacklistPath)

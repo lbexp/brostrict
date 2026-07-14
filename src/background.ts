@@ -8,6 +8,19 @@ interface Data {
   active: boolean;
 }
 
+const isValidData = (obj: unknown): obj is Data => {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'blacklist' in obj &&
+    'whitelist' in obj &&
+    'active' in obj &&
+    Array.isArray((obj as Data).blacklist) &&
+    Array.isArray((obj as Data).whitelist) &&
+    typeof (obj as Data).active === 'boolean'
+  );
+};
+
 /*
  * INTERFACES - END
  */
@@ -17,9 +30,11 @@ interface Data {
  */
 
 const STORAGE_KEY = 'brostrict_data';
-const BLOCKED_PAGE = chrome.runtime.getURL('blocked.html');
+const getBlockedPage = (): string => chrome.runtime.getURL('blocked.html');
 
-let cachedData: Data = {
+let currentRuleIds: number[] = [];
+
+export let cachedData: Data = {
   blacklist: [],
   whitelist: [],
   active: true,
@@ -29,72 +44,32 @@ let cachedData: Data = {
  * VARIABLES - END
  */
 
+import { isUrlWhitelisted, isUrlBlacklisted, toUrlFilter } from './url-utils.ts';
+
 /*
  * BUILDING BLOCKS - START
  */
 
-const isUrlWhitelisted = (url: string, whitelist: string[]): boolean => {
-  try {
-    const urlObj = new URL(url);
-    const hostname = urlObj.hostname;
-    const pathname = urlObj.pathname;
+export { isUrlWhitelisted, isUrlBlacklisted, toUrlFilter };
 
-    for (const entry of whitelist) {
-      if (entry.includes('/')) {
-        const [whitelistHost, ...pathParts] = entry.split('/');
-        const whitelistPath = pathParts.join('/');
-        if (
-          hostname === whitelistHost &&
-          pathname.startsWith('/' + whitelistPath)
-        ) {
-          return true;
-        }
-      } else if (hostname === entry) {
-        return true;
-      }
+export const updateRules = (): void => {
+  const removeAllRules = (): Promise<void> => {
+    if (currentRuleIds.length === 0) {
+      return Promise.resolve();
     }
-    return false;
-  } catch {
-    return false;
-  }
-};
-
-const toUrlFilter = (pattern: string): string => {
-  return `||${pattern}`;
-};
-
-const isUrlBlacklisted = (url: string, blacklist: string[]): boolean => {
-  try {
-    const urlObj = new URL(url);
-    const hostname = urlObj.hostname;
-    const pathname = urlObj.pathname;
-
-    for (const entry of blacklist) {
-      if (entry.includes('/')) {
-        const [blacklistHost, ...pathParts] = entry.split('/');
-        const blacklistPath = pathParts.join('/');
-        if (
-          hostname === blacklistHost &&
-          pathname.startsWith('/' + blacklistPath)
-        ) {
-          return true;
-        }
-      } else if (hostname === entry) {
-        return true;
-      }
-    }
-    return false;
-  } catch {
-    return false;
-  }
-};
-
-const updateRules = (): void => {
-  if (!cachedData.active) {
-    chrome.declarativeNetRequest.updateDynamicRules({
-      removeRuleIds: Array.from({ length: 100 }, (_, i) => i + 1),
+    return chrome.declarativeNetRequest.updateDynamicRules({
+      removeRuleIds: currentRuleIds,
       addRules: [],
+    }).then(() => {
+      currentRuleIds = [];
+    }).catch((err) => {
+      console.error('Failed to remove rules:', err);
+      currentRuleIds = [];
     });
+  };
+
+  if (!cachedData.active) {
+    removeAllRules();
     return;
   }
 
@@ -121,7 +96,7 @@ const updateRules = (): void => {
       action: {
         type: 'redirect',
         redirect: {
-          url: BLOCKED_PAGE,
+          url: getBlockedPage(),
         },
       },
       condition: {
@@ -131,9 +106,15 @@ const updateRules = (): void => {
     });
   });
 
+  const newRuleIds = rules.map((r) => r.id);
+
   chrome.declarativeNetRequest.updateDynamicRules({
-    removeRuleIds: Array.from({ length: 100 }, (_, i) => i + 1),
+    removeRuleIds: currentRuleIds,
     addRules: rules,
+  }).then(() => {
+    currentRuleIds = newRuleIds;
+  }).catch((err) => {
+    console.error('Failed to update rules:', err);
   });
 };
 
@@ -145,21 +126,24 @@ const updateRules = (): void => {
  * MAIN FLOW - START
  */
 
-const init = (): void => {
+export const init = (): void => {
   chrome.storage.local.get(STORAGE_KEY, (result) => {
-    cachedData = result[STORAGE_KEY] || cachedData;
+    if (isValidData(result[STORAGE_KEY])) {
+      cachedData = result[STORAGE_KEY] as Data;
+    }
     updateRules();
   });
 };
 
 chrome.runtime.onInstalled.addListener(init);
 chrome.runtime.onStartup.addListener(init);
-init();
 
-chrome.storage.onChanged.addListener((changes) => {
+chrome.storage.local.onChanged.addListener((changes) => {
   if (changes[STORAGE_KEY]) {
-    cachedData = changes[STORAGE_KEY].newValue;
-    updateRules();
+    if (isValidData(changes[STORAGE_KEY].newValue)) {
+      cachedData = changes[STORAGE_KEY].newValue as Data;
+      updateRules();
+    }
   }
 });
 
@@ -168,9 +152,13 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     sendResponse({ whitelist: cachedData.whitelist });
   }
   if (message.type === 'isWhitelisted') {
-    sendResponse({
-      result: isUrlWhitelisted(message.url, cachedData.whitelist),
-    });
+    if (typeof message.url === 'string') {
+      sendResponse({
+        result: isUrlWhitelisted(message.url, cachedData.whitelist),
+      });
+    } else {
+      sendResponse({ result: false });
+    }
   }
   return true;
 });
@@ -183,7 +171,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (isUrlWhitelisted(url, cachedData.whitelist)) return;
 
   if (isUrlBlacklisted(url, cachedData.blacklist)) {
-    chrome.tabs.update(tabId, { url: BLOCKED_PAGE });
+    chrome.tabs.update(tabId, { url: getBlockedPage() });
   }
 });
 

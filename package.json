@@ -4,9 +4,14 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "bun build.ts"
+    "build": "bun build.ts",
+    "test": "bun test --preload ./tests/preload.ts ./tests/unit/",
+    "test:unit": "bun test --preload ./tests/preload.ts ./tests/unit/",
+    "test:e2e": "npx playwright test",
+    "test:e2e:ui": "npx playwright test --ui"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
     "@types/bun": "latest",
     "chrome-types": "^0.1.414",
     "esbuild": "^0.27.4"

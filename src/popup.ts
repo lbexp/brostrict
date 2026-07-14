@@ -6,13 +6,13 @@ interface Data {
 
 const STORAGE_KEY = 'brostrict_data';
 
-const createContainer = (): HTMLDivElement => {
+export const createContainer = (): HTMLDivElement => {
   const container = document.createElement('div');
   container.className = 'container';
   return container;
 };
 
-const createProtectionCard = (
+export const createProtectionCard = (
   active: boolean,
   onToggle: () => void,
 ): HTMLDivElement => {
@@ -36,7 +36,7 @@ const createProtectionCard = (
   return card;
 };
 
-const createListCard = (
+export const createListCard = (
   id: string,
   title: string,
   placeholder: string,
@@ -80,7 +80,7 @@ const createListCard = (
   return { card, list, addBtn, input };
 };
 
-const retrieveData = async (): Promise<Data> => {
+export const retrieveData = async (): Promise<Data> => {
   const result = await chrome.storage.local.get(STORAGE_KEY);
   return (
     result[STORAGE_KEY] || {
@@ -91,11 +91,11 @@ const retrieveData = async (): Promise<Data> => {
   );
 };
 
-const saveData = async (data: Data): Promise<void> => {
+export const saveData = async (data: Data): Promise<void> => {
   await chrome.storage.local.set({ [STORAGE_KEY]: data });
 };
 
-const renderList = (
+export const renderList = (
   list: HTMLElement,
   items: string[],
   onRemove: (index: number) => void,
@@ -175,7 +175,7 @@ const renderList = (
   });
 };
 
-const render = (data: Data): HTMLDivElement => {
+export const render = (data: Data): HTMLDivElement => {
   const container = createContainer();
 
   let currentData = data;
@@ -288,7 +288,7 @@ const render = (data: Data): HTMLDivElement => {
   return container;
 };
 
-const init = async (): Promise<void> => {
+export const init = async (): Promise<void> => {
   const data = await retrieveData();
   const container = render(data);
   const app = document.getElementById('app');

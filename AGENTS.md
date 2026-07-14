@@ -5,7 +5,6 @@ Chrome Extension (Manifest V3) for blocking sites via declarativeNetRequest.
 ## Stack
 - **Runtime**: Bun (build script uses Bun APIs: `BunFile`, `Bun.write`, `Bun.randomUUIDv7`)
 - **Language**: TypeScript (`strict: true`, `moduleResolution: bundler`)
-- **Effect library**: `effect` for functional error handling
 - **Bundler**: esbuild (iife format, es6 target)
 - **Types**: `chrome-types` for extension APIs
 

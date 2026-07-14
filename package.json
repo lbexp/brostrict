@@ -7,8 +7,8 @@
     "build": "bun build.ts",
     "test": "bun test --preload ./tests/preload.ts ./tests/unit/",
     "test:unit": "bun test --preload ./tests/preload.ts ./tests/unit/",
-    "test:e2e": "npx playwright test",
-    "test:e2e:ui": "npx playwright test --ui"
+    "test:e2e": "node node_modules/.bin/playwright test --config=tests/e2e/playwright.config.mjs",
+    "test:e2e:ui": "node node_modules/.bin/playwright test --config=tests/e2e/playwright.config.mjs --ui"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.1",

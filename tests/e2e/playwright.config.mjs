@@ -1,9 +1,13 @@
-const { defineConfig, devices } = require('@playwright/test');
-const path = require('path');
+import { defineConfig, devices } from '@playwright/test';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const extensionPath = path.resolve(__dirname, '../../build');
 
-module.exports = defineConfig({
+export default defineConfig({
   testDir: __dirname,
   fullyParallel: false,
   forbidOnly: !!process.env.CI,

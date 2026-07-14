@@ -1,8 +1,12 @@
-const path = require('path');
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const EXTENSION_PATH = path.resolve(__dirname, '../../build');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-async function getExtensionPopupUrl(context) {
+export const EXTENSION_PATH = path.resolve(__dirname, '../../build');
+
+export async function getExtensionPopupUrl(context) {
   const bgPage = context.backgroundPages()[0];
   if (bgPage) {
     return bgPage.url();
@@ -16,7 +20,7 @@ async function getExtensionPopupUrl(context) {
   return null;
 }
 
-async function clearExtensionStorage(context) {
+export async function clearExtensionStorage(context) {
   const bgPage = context.backgroundPages()[0];
   if (bgPage) {
     await bgPage.evaluate(() => {
@@ -25,7 +29,7 @@ async function clearExtensionStorage(context) {
   }
 }
 
-async function setExtensionStorageData(context, data) {
+export async function setExtensionStorageData(context, data) {
   const bgPage = context.backgroundPages()[0];
   if (bgPage) {
     await bgPage.evaluate(
@@ -37,7 +41,7 @@ async function setExtensionStorageData(context, data) {
   }
 }
 
-async function getPopupPage(context) {
+export async function getPopupPage(context) {
   const allPages = context.pages();
 
   for (const page of allPages) {
@@ -51,11 +55,3 @@ async function getPopupPage(context) {
 
   return null;
 }
-
-module.exports = {
-  EXTENSION_PATH,
-  getExtensionPopupUrl,
-  clearExtensionStorage,
-  setExtensionStorageData,
-  getPopupPage,
-};

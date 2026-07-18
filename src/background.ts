@@ -1,3 +1,5 @@
+import { isUrlWhitelisted, isUrlBlacklisted } from './url-utils.ts';
+
 /*
  * INTERFACES - START
  */
@@ -7,6 +9,31 @@ interface Data {
   whitelist: string[];
   active: boolean;
 }
+
+/*
+ * INTERFACES - END
+ */
+
+/*
+ * VARIABLES - START
+ */
+
+const STORAGE_KEY = 'brostrict_data';
+const getBlockedPage = (): string => chrome.runtime.getURL('blocked.html');
+
+export let cachedData: Data = {
+  blacklist: [],
+  whitelist: [],
+  active: true,
+};
+
+/*
+ * VARIABLES - END
+ */
+
+/*
+ * BUILDING BLOCK - START
+ */
 
 const isValidData = (obj: unknown): obj is Data => {
   return (
@@ -22,104 +49,7 @@ const isValidData = (obj: unknown): obj is Data => {
 };
 
 /*
- * INTERFACES - END
- */
-
-/*
- * VARIABLES - START
- */
-
-const STORAGE_KEY = 'brostrict_data';
-const getBlockedPage = (): string => chrome.runtime.getURL('blocked.html');
-
-let currentRuleIds: number[] = [];
-
-export let cachedData: Data = {
-  blacklist: [],
-  whitelist: [],
-  active: true,
-};
-
-/*
- * VARIABLES - END
- */
-
-import { isUrlWhitelisted, isUrlBlacklisted, toUrlFilter } from './url-utils.ts';
-
-/*
- * BUILDING BLOCKS - START
- */
-
-export { isUrlWhitelisted, isUrlBlacklisted, toUrlFilter };
-
-export const updateRules = (): void => {
-  const removeAllRules = (): Promise<void> => {
-    if (currentRuleIds.length === 0) {
-      return Promise.resolve();
-    }
-    return chrome.declarativeNetRequest.updateDynamicRules({
-      removeRuleIds: currentRuleIds,
-      addRules: [],
-    }).then(() => {
-      currentRuleIds = [];
-    }).catch((err) => {
-      console.error('Failed to remove rules:', err);
-      currentRuleIds = [];
-    });
-  };
-
-  if (!cachedData.active) {
-    removeAllRules();
-    return;
-  }
-
-  const rules: chrome.declarativeNetRequest.Rule[] = [];
-
-  cachedData.whitelist.forEach((item) => {
-    rules.push({
-      id: rules.length + 1,
-      priority: 2,
-      action: {
-        type: 'allow',
-      },
-      condition: {
-        resourceTypes: ['main_frame'],
-        urlFilter: toUrlFilter(item),
-      },
-    });
-  });
-
-  cachedData.blacklist.forEach((item) => {
-    rules.push({
-      id: rules.length + 1,
-      priority: 1,
-      action: {
-        type: 'redirect',
-        redirect: {
-          url: getBlockedPage(),
-        },
-      },
-      condition: {
-        resourceTypes: ['main_frame'],
-        urlFilter: toUrlFilter(item),
-      },
-    });
-  });
-
-  const newRuleIds = rules.map((r) => r.id);
-
-  chrome.declarativeNetRequest.updateDynamicRules({
-    removeRuleIds: currentRuleIds,
-    addRules: rules,
-  }).then(() => {
-    currentRuleIds = newRuleIds;
-  }).catch((err) => {
-    console.error('Failed to update rules:', err);
-  });
-};
-
-/*
- * BUILDING BLOCKS - END
+ * BUILDING BLOCK - END
  */
 
 /*
@@ -131,7 +61,6 @@ export const init = (): void => {
     if (isValidData(result[STORAGE_KEY])) {
       cachedData = result[STORAGE_KEY] as Data;
     }
-    updateRules();
   });
 };
 
@@ -139,38 +68,69 @@ chrome.runtime.onInstalled.addListener(init);
 chrome.runtime.onStartup.addListener(init);
 
 chrome.storage.local.onChanged.addListener((changes) => {
+  console.log('[DEBUG] chrome onChanged invoked!');
+
   if (changes[STORAGE_KEY]) {
     if (isValidData(changes[STORAGE_KEY].newValue)) {
       cachedData = changes[STORAGE_KEY].newValue as Data;
-      updateRules();
+
+      console.log('[DEBUG] chrome onChanged data:', cachedData);
     }
   }
 });
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  console.log('[DEBUG] chrome onMessage invoked!');
+
   if (message.type === 'getWhitelist') {
     sendResponse({ whitelist: cachedData.whitelist });
+    console.log('[DEBUG] chrome onMessage getWhitelist:', cachedData.whitelist);
   }
+
   if (message.type === 'isWhitelisted') {
     if (typeof message.url === 'string') {
+      const isWhitelisted = isUrlWhitelisted(message.url, cachedData.whitelist);
       sendResponse({
-        result: isUrlWhitelisted(message.url, cachedData.whitelist),
+        result: isWhitelisted,
       });
+
+      console.log(
+        '[DEBUG] chrome onMessage isWhitelisted valid:',
+        isWhitelisted,
+      );
     } else {
       sendResponse({ result: false });
+      console.log('[DEBUG] chrome onMessage isWhitelisted valid: non-string');
     }
   }
   return true;
 });
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (!cachedData.active || !changeInfo.url || !tab.url) return;
+  console.log('[DEBUG] chrome onUpdated invoked!', {
+    changeInfoUrl: changeInfo.url,
+    tabUrl: tab.url,
+  });
 
-  const url = tab.url;
+  if (!cachedData.active || (!changeInfo.url && !tab.url)) {
+    console.log('[DEBUG] chrome onUpdated: not active');
+    return;
+  }
 
-  if (isUrlWhitelisted(url, cachedData.whitelist)) return;
+  const url = changeInfo.url || tab.url;
+
+  if (!url) {
+    console.log('[DEBUG] chrome onUpdated: empty url');
+    return;
+  }
+
+  if (isUrlWhitelisted(url, cachedData.whitelist)) {
+    console.log('[DEBUG] chrome onUpdated: whitelisted');
+    return;
+  }
 
   if (isUrlBlacklisted(url, cachedData.blacklist)) {
+    console.log('[DEBUG] chrome onUpdated: blacklisted');
     chrome.tabs.update(tabId, { url: getBlockedPage() });
   }
 });

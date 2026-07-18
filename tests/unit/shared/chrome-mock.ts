@@ -1,5 +1,3 @@
-import type { Data } from '../../../src/background';
-
 export interface ChromeStorageMock {
   get: (key: string, callback?: (result: Record<string, unknown>) => void) => Promise<Record<string, unknown>>;
   set: (data: Record<string, unknown>) => Promise<void>;
@@ -55,12 +53,15 @@ export interface ChromeMock {
 let storageData: Record<string, unknown> = {};
 let storageListeners: Array<(changes: Record<string, { newValue: unknown }>) => void> = [];
 let messageListeners: Array<(message: { type: string; url?: string }, sender: unknown, sendResponse: (response: unknown) => void) => void> = [];
+let tabsUpdatedListeners: Array<(tabId: number, changeInfo: { url?: string }, tab: { url?: string }) => void> = [];
 let dynamicRules: Array<{
   id: number;
   priority: number;
   action: { type: string; redirect?: { url: string } };
   condition: { resourceTypes: string[]; urlFilter: string };
 }> = [];
+
+let tabsUpdateCalls: Array<{ tabId: number; options: { url: string } }> = [];
 
 function createMockFunction() {
   let calls: unknown[][] = [];
@@ -74,9 +75,8 @@ function createMockFunction() {
 
 export const createChromeMock = (): ChromeMock => {
   storageData = {};
-  storageListeners = [];
-  messageListeners = [];
   dynamicRules = [];
+  tabsUpdateCalls = [];
 
   const updateDynamicRulesCalls: Array<{
     removeRuleIds: number[];
@@ -160,17 +160,22 @@ export const createChromeMock = (): ChromeMock => {
       },
     },
     tabs: {
-      onUpdated: { addListener: () => {} },
-      update: async () => {},
+      onUpdated: {
+        addListener: (cb) => {
+          tabsUpdatedListeners.push(cb);
+        },
+      },
+      update: async (tabId, options) => {
+        tabsUpdateCalls.push({ tabId, options });
+      },
     },
   };
 };
 
 export const resetChromeState = (): void => {
   storageData = {};
-  storageListeners = [];
-  messageListeners = [];
   dynamicRules = [];
+  tabsUpdateCalls = [];
 };
 
 export const setStorageData = (key: string, value: unknown): void => {
@@ -179,4 +184,12 @@ export const setStorageData = (key: string, value: unknown): void => {
 
 export const clearStorageData = (): void => {
   storageData = {};
+};
+
+export const getTabsUpdateCalls = (): Array<{ tabId: number; options: { url: string } }> => {
+  return tabsUpdateCalls;
+};
+
+export const triggerTabsUpdated = (tabId: number, changeInfo: { url?: string }, tab: { url?: string }): void => {
+  tabsUpdatedListeners.forEach((cb) => cb(tabId, changeInfo, tab));
 };

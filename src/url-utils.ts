@@ -1,4 +1,7 @@
-const matchHostname = (urlHostname: string, patternHostname: string): boolean => {
+const matchHostname = (
+  urlHostname: string,
+  patternHostname: string,
+): boolean => {
   if (urlHostname === patternHostname) return true;
   if (urlHostname === 'www.' + patternHostname) return true;
   if (patternHostname === 'www.' + urlHostname) return true;
@@ -6,7 +9,8 @@ const matchHostname = (urlHostname: string, patternHostname: string): boolean =>
 };
 
 const matchPath = (urlPath: string, patternPath: string): boolean => {
-  const normalizedUrlPath = urlPath === '/' ? '' : urlPath.replace(/^\//, '').replace(/\/$/, '');
+  const normalizedUrlPath =
+    urlPath === '/' ? '' : urlPath.replace(/^\//, '').replace(/\/$/, '');
   const normalizedPatternPath = patternPath.replace(/\/$/, '');
 
   if (normalizedUrlPath === normalizedPatternPath) {
@@ -30,7 +34,10 @@ export const isUrlWhitelisted = (url: string, whitelist: string[]): boolean => {
       if (entry.includes('/')) {
         const [whitelistHost, ...pathParts] = entry.split('/');
         const whitelistPath = pathParts.join('/');
-        if (matchHostname(hostname, whitelistHost) && matchPath(pathname, whitelistPath)) {
+        if (
+          matchHostname(hostname, whitelistHost) &&
+          matchPath(pathname, whitelistPath)
+        ) {
           return true;
         }
       } else if (matchHostname(hostname, entry)) {
@@ -53,7 +60,10 @@ export const isUrlBlacklisted = (url: string, blacklist: string[]): boolean => {
       if (entry.includes('/')) {
         const [blacklistHost, ...pathParts] = entry.split('/');
         const blacklistPath = pathParts.join('/');
-        if (matchHostname(hostname, blacklistHost) && matchPath(pathname, blacklistPath)) {
+        if (
+          matchHostname(hostname, blacklistHost) &&
+          matchPath(pathname, blacklistPath)
+        ) {
           return true;
         }
       } else if (matchHostname(hostname, entry)) {
@@ -66,27 +76,4 @@ export const isUrlBlacklisted = (url: string, blacklist: string[]): boolean => {
   }
 };
 
-const SPECIAL_CHARS = [
-  '*', '+', '?', '^', '$', '{', '}', '(', ')', '|',
-  '[', ']', '\\', '.',
-];
 
-const escapeRegex = (str: string): string => {
-  const escaped = SPECIAL_CHARS.map((c) => {
-    if (c === '\\') return '\\\\';
-    if (c === '$' || c === '{' || c === '}') return '\\' + c;
-    if (c === '[' || c === ']' || c === '.') return '\\' + c;
-    return c;
-  }).join('');
-
-  const pattern = '[' + escaped + ']';
-  return str.replace(new RegExp(pattern, 'g'), '\\$&');
-};
-
-export const toUrlFilter = (pattern: string): string => {
-  const escaped = escapeRegex(pattern);
-  if (pattern.includes('/')) {
-    return `||${escaped}^`;
-  }
-  return `||${escaped}`;
-};

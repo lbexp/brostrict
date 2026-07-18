@@ -32,7 +32,7 @@ export const isUrlWhitelisted = (url: string, whitelist: string[]): boolean => {
 
     for (const entry of whitelist) {
       if (entry.includes('/')) {
-        const [whitelistHost, ...pathParts] = entry.split('/');
+        const [whitelistHost = '', ...pathParts] = entry.split('/');
         const whitelistPath = pathParts.join('/');
         if (
           matchHostname(hostname, whitelistHost) &&
@@ -58,7 +58,7 @@ export const isUrlBlacklisted = (url: string, blacklist: string[]): boolean => {
 
     for (const entry of blacklist) {
       if (entry.includes('/')) {
-        const [blacklistHost, ...pathParts] = entry.split('/');
+        const [blacklistHost = '', ...pathParts] = entry.split('/');
         const blacklistPath = pathParts.join('/');
         if (
           matchHostname(hostname, blacklistHost) &&
@@ -75,5 +75,3 @@ export const isUrlBlacklisted = (url: string, blacklist: string[]): boolean => {
     return false;
   }
 };
-
-

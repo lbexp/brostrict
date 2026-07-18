@@ -67,9 +67,74 @@
         .emblem {
           animation: none;
         }
+        .tape-text {
+          animation: none;
+        }
+        .speech-bubble {
+          animation: none;
+        }
+      }
+      /* caution tape strips */
+      .tape {
+        position: fixed;
+        left: -5%;
+        width: 110%;
+        z-index: 3;
+        pointer-events: none;
+        border-block: 3px solid var(--ink);
+        background: repeating-linear-gradient(-45deg, var(--red) 0 18px, var(--ink) 18px 36px);
+        padding: 3px 0;
+        box-shadow: 4px 4px 0 rgba(20, 18, 16, 0.35);
+      }
+      .tape.top {
+        top: 14px;
+        transform: rotate(-1.8deg);
+      }
+      .tape.bottom {
+        bottom: 16px;
+        transform: rotate(1.4deg);
+      }
+      .tape-track {
+        background: var(--paper);
+        border-block: 2.5px solid var(--ink);
+        overflow: hidden;
+      }
+      .tape-text {
+        display: flex;
+        width: max-content;
+        animation: tapescroll 22s linear infinite;
+        font-family: 'Bangers', 'Impact', sans-serif;
+        font-size: 0.9rem;
+        letter-spacing: 3.5px;
+        color: var(--ink);
+        padding: 2px 0;
+      }
+      .tape-text span {
+        white-space: nowrap;
+      }
+      @keyframes tapescroll {
+        from { transform: translateX(0); }
+        to { transform: translateX(-50%); }
+      }
+      /* giant verdict watermark */
+      .watermark {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Bangers', 'Impact', sans-serif;
+        font-size: 38vmin;
+        color: transparent;
+        -webkit-text-stroke: 3px rgba(230, 48, 30, 0.14);
+        transform: rotate(-12deg);
+        pointer-events: none;
+        user-select: none;
       }
       .container {
         position: relative;
+        z-index: 1;
         max-width: 460px;
         width: 100%;
         display: flex;
@@ -93,6 +158,23 @@
         height: 150px;
         filter: drop-shadow(5px 5px 0 rgba(20, 18, 16, 0.9));
       }
+      /* jagged starburst behind the bro */
+      .emblem::before,
+      .emblem::after {
+        content: '';
+        position: absolute;
+        clip-path: polygon(50% 0%, 58% 11%, 72% 5%, 73% 19%, 88% 16%, 85% 31%, 98% 34%, 90% 46%, 100% 57%, 87% 62%, 91% 77%, 76% 75%, 73% 90%, 60% 82%, 50% 95%, 40% 82%, 26% 89%, 25% 75%, 9% 77%, 14% 62%, 0% 56%, 11% 46%, 2% 34%, 16% 30%, 12% 16%, 28% 19%, 29% 5%, 42% 11%);
+      }
+      .emblem::before {
+        inset: -20px;
+        background: var(--yellow);
+        z-index: -1;
+      }
+      .emblem::after {
+        inset: -27px;
+        background: var(--ink);
+        z-index: -2;
+      }
       /* bro's unsolicited wisdom */
       .speech-bubble {
         position: relative;
@@ -110,6 +192,11 @@
         box-shadow: 3.5px 3.5px 0 var(--ink);
         transform: rotate(2deg);
         z-index: 1;
+        animation: bubblepop 0.4s cubic-bezier(0.2, 1.4, 0.4, 1) 0.15s backwards;
+      }
+      @keyframes bubblepop {
+        from { transform: rotate(2deg) scale(0.6); opacity: 0; }
+        to { transform: rotate(2deg) scale(1); opacity: 1; }
       }
       .speech-bubble::before,
       .speech-bubble::after {
@@ -137,6 +224,18 @@
         margin-bottom: 12px;
         transform: skew(-4deg);
         text-shadow: 4px 4px 0 var(--red);
+      }
+      /* red swipe underline */
+      h1::after {
+        content: '';
+        display: block;
+        width: 62%;
+        height: 7px;
+        margin: 4px auto 0;
+        background: var(--red);
+        border: 2px solid var(--ink);
+        border-radius: 4px;
+        transform: rotate(-1.2deg);
       }
       .url-chip {
         display: none;
@@ -171,6 +270,7 @@
       }
       /* bro's reluctant permission slip */
       .notice {
+        position: relative;
         background: var(--green-soft);
         border: 2.5px solid var(--ink);
         border-radius: 12px;
@@ -182,6 +282,23 @@
         box-shadow: 4px 4px 0 var(--ink);
         transform: rotate(-1deg);
         display: none;
+      }
+      .notice::after {
+        content: 'CERTIFIED PASS';
+        position: absolute;
+        top: -13px;
+        right: -8px;
+        padding: 2px 8px;
+        background: var(--paper);
+        border: 2px solid var(--green);
+        border-radius: 7px;
+        color: var(--green);
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 0.52rem;
+        font-weight: 500;
+        letter-spacing: 1.6px;
+        transform: rotate(4deg);
+        box-shadow: 2px 2px 0 var(--ink);
       }
       .button-group {
         display: flex;
@@ -202,15 +319,18 @@
         border-radius: 12px;
         cursor: pointer;
         box-shadow: 4px 4px 0 var(--ink);
+        transform: rotate(var(--tilt, 0deg));
         transition: all 0.15s ease;
       }
+      #proceed-btn { --tilt: -1.3deg; }
+      #go-back-btn { --tilt: 1.3deg; }
       button:hover {
         background: var(--red-dark);
-        transform: translate(-2px, -2px);
+        transform: rotate(var(--tilt, 0deg)) translate(-2px, -2px);
         box-shadow: 6px 6px 0 var(--ink);
       }
       button:active {
-        transform: translate(3px, 3px);
+        transform: rotate(var(--tilt, 0deg)) translate(3px, 3px);
         box-shadow: 1px 1px 0 var(--ink);
       }
       button.secondary {
@@ -247,6 +367,23 @@
     </style>
   </head>
   <body>
+    <div class="tape top" aria-hidden="true">
+      <div class="tape-track">
+        <div class="tape-text">
+          <span>NAH — BROSTRICT — GO TOUCH GRASS — BRO IS WATCHING — NAH — BROSTRICT — GO TOUCH GRASS — BRO IS WATCHING — NAH — BROSTRICT — GO TOUCH GRASS — BRO IS WATCHING —&nbsp;</span>
+          <span>NAH — BROSTRICT — GO TOUCH GRASS — BRO IS WATCHING — NAH — BROSTRICT — GO TOUCH GRASS — BRO IS WATCHING — NAH — BROSTRICT — GO TOUCH GRASS — BRO IS WATCHING —&nbsp;</span>
+        </div>
+      </div>
+    </div>
+    <div class="tape bottom" aria-hidden="true">
+      <div class="tape-track">
+        <div class="tape-text">
+          <span>NAH — BROSTRICT — GO TOUCH GRASS — BRO IS WATCHING — NAH — BROSTRICT — GO TOUCH GRASS — BRO IS WATCHING — NAH — BROSTRICT — GO TOUCH GRASS — BRO IS WATCHING —&nbsp;</span>
+          <span>NAH — BROSTRICT — GO TOUCH GRASS — BRO IS WATCHING — NAH — BROSTRICT — GO TOUCH GRASS — BRO IS WATCHING — NAH — BROSTRICT — GO TOUCH GRASS — BRO IS WATCHING —&nbsp;</span>
+        </div>
+      </div>
+    </div>
+    <div class="watermark" aria-hidden="true">NAH.</div>
     <div class="container">
       <div class="speech-bubble">Go touch grass, lil bro.</div>
       <div class="emblem">

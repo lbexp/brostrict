@@ -19,6 +19,7 @@
         --red-dark: #c92a12;
         --red-deep: #8f1d0f;
         --green: #2f9e44;
+        --green-dark: #2b8a3e;
         --yellow: #ffd43b;
         --shadow: 4px 4px 0 var(--ink);
         --radius: 14px;
@@ -307,7 +308,6 @@
         display: flex;
         gap: 8px;
         min-width: 0;
-        overflow: hidden;
       }
       .input-row input {
         flex: 1;
@@ -359,11 +359,19 @@
         transform: translate(2px, 2px);
         box-shadow: 1px 1px 0 var(--ink);
       }
+      .whitelist-card .input-row button {
+        background: var(--green);
+      }
+      .whitelist-card .input-row button:hover {
+        background: var(--green-dark);
+      }
       .list {
         list-style: none;
         max-height: 96px;
         overflow-y: auto;
-        margin-top: 10px;
+        /* room for .list-item hover shadow/translate, offset by negative margins */
+        padding: 2px 3px 3px 2px;
+        margin: 8px -3px -3px -2px;
         display: flex;
         flex-direction: column;
         gap: 6px;

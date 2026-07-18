@@ -47,11 +47,11 @@ describe('toUrlFilter', () => {
   });
 
   test('escapes multiple special characters', () => {
-    expect(toUrlFilter('youtube.com/test?foo=1')).toBe('||youtube\\.com/test\\?foo=1');
+    expect(toUrlFilter('youtube.com/test?foo=1')).toBe('||youtube\\.com/test\\?foo=1^');
   });
 
   test('handles path with slash', () => {
-    expect(toUrlFilter('youtube.com/video')).toBe('||youtube\\.com/video');
+    expect(toUrlFilter('youtube.com/video')).toBe('||youtube\\.com/video^');
   });
 
   test('handles simple alphanumeric', () => {

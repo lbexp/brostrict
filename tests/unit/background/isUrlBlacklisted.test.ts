@@ -11,8 +11,12 @@ describe('isUrlBlacklisted', () => {
       expect(isUrlBlacklisted('https://notyoutube.com', ['youtube.com'])).toBe(false);
     });
 
-    test('returns false for subdomain', () => {
+    test('returns false for non-www subdomain', () => {
       expect(isUrlBlacklisted('https://m.youtube.com', ['youtube.com'])).toBe(false);
+    });
+
+    test('returns true for www subdomain', () => {
+      expect(isUrlBlacklisted('https://www.youtube.com', ['youtube.com'])).toBe(true);
     });
 
     test('returns true when URL has port', () => {
@@ -43,6 +47,24 @@ describe('isUrlBlacklisted', () => {
 
     test('returns true for root path', () => {
       expect(isUrlBlacklisted('https://youtube.com/', ['youtube.com/'])).toBe(true);
+    });
+
+    test('returns true for www with path', () => {
+      expect(isUrlBlacklisted('https://www.youtube.com/video', ['youtube.com/video'])).toBe(true);
+    });
+  });
+
+  describe('host-only blocks any path', () => {
+    test('returns true for any path under blocked host', () => {
+      expect(isUrlBlacklisted('https://youtube.com/watch', ['youtube.com'])).toBe(true);
+    });
+
+    test('returns true for www with any path under blocked host', () => {
+      expect(isUrlBlacklisted('https://www.youtube.com/any/path', ['youtube.com'])).toBe(true);
+    });
+
+    test('returns true for trailing slash', () => {
+      expect(isUrlBlacklisted('https://youtube.com/', ['youtube.com'])).toBe(true);
     });
   });
 
@@ -83,6 +105,14 @@ describe('isUrlBlacklisted', () => {
 
     test('handles https protocol', () => {
       expect(isUrlBlacklisted('https://youtube.com', ['youtube.com'])).toBe(true);
+    });
+
+    test('handles http with www', () => {
+      expect(isUrlBlacklisted('http://www.youtube.com', ['youtube.com'])).toBe(true);
+    });
+
+    test('handles https with www', () => {
+      expect(isUrlBlacklisted('https://www.youtube.com', ['youtube.com'])).toBe(true);
     });
   });
 });

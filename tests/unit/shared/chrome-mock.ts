@@ -1,7 +1,7 @@
 import type { Data } from '../../../src/background';
 
 export interface ChromeStorageMock {
-  get: (key: string) => Promise<Record<string, unknown>>;
+  get: (key: string, callback?: (result: Record<string, unknown>) => void) => Promise<Record<string, unknown>>;
   set: (data: Record<string, unknown>) => Promise<void>;
   clear: () => Promise<void>;
   onChanged: {
@@ -78,16 +78,28 @@ export const createChromeMock = (): ChromeMock => {
   messageListeners = [];
   dynamicRules = [];
 
-  const updateDynamicRulesMock = createMockFunction();
+  const updateDynamicRulesCalls: Array<{
+    removeRuleIds: number[];
+    addRules: Array<{
+      id: number;
+      priority: number;
+      action: { type: string; redirect?: { url: string } };
+      condition: { resourceTypes: string[]; urlFilter: string };
+    }>;
+  }> = [];
 
   return {
     storage: {
       local: {
-        get: async (key: string) => {
+        get: (key: string, callback?: (result: Record<string, unknown>) => void): Promise<Record<string, unknown>> => {
+          const result: Record<string, unknown> = {};
           if (key === 'brostrict_data') {
-            return { [key]: storageData[key] };
+            result[key] = storageData[key];
           }
-          return {};
+          if (callback) {
+            queueMicrotask(() => callback(result));
+          }
+          return Promise.resolve(result);
         },
         set: async (data: Record<string, unknown>) => {
           storageData = { ...storageData, ...data };
@@ -112,7 +124,21 @@ export const createChromeMock = (): ChromeMock => {
       },
     },
     declarativeNetRequest: {
-      updateDynamicRules: updateDynamicRulesMock as ChromeDeclarativeNetRequestMock['updateDynamicRules'],
+      updateDynamicRules: async (options) => {
+        updateDynamicRulesCalls.push({
+          removeRuleIds: options.removeRuleIds || [],
+          addRules: options.addRules || [],
+        });
+        dynamicRules = dynamicRules.filter((r) => !(options.removeRuleIds || []).includes(r.id));
+        for (const rule of (options.addRules || [])) {
+          const existing = dynamicRules.findIndex((r) => r.id === rule.id);
+          if (existing !== -1) {
+            dynamicRules[existing] = rule;
+          } else {
+            dynamicRules.push(rule);
+          }
+        }
+      },
       getDynamicRules: async () => [...dynamicRules],
     },
     runtime: {

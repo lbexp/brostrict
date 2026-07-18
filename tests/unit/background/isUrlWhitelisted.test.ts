@@ -11,12 +11,12 @@ describe('isUrlWhitelisted', () => {
       expect(isUrlWhitelisted('https://notyoutube.com', ['youtube.com'])).toBe(false);
     });
 
-    test('returns false for subdomain', () => {
+    test('returns false for non-www subdomain', () => {
       expect(isUrlWhitelisted('https://m.youtube.com', ['youtube.com'])).toBe(false);
     });
 
-    test('returns false for www subdomain', () => {
-      expect(isUrlWhitelisted('https://www.youtube.com', ['youtube.com'])).toBe(false);
+    test('returns true for www subdomain', () => {
+      expect(isUrlWhitelisted('https://www.youtube.com', ['youtube.com'])).toBe(true);
     });
 
     test('returns true when URL has port', () => {
@@ -49,6 +49,34 @@ describe('isUrlWhitelisted', () => {
 
     test('returns true for root path', () => {
       expect(isUrlWhitelisted('https://youtube.com/', ['youtube.com/'])).toBe(true);
+    });
+
+    test('returns true for www with exact path', () => {
+      expect(isUrlWhitelisted('https://www.youtube.com/video', ['youtube.com/video'])).toBe(true);
+    });
+  });
+
+  describe('whitelist over blacklist hierarchy', () => {
+    const whitelist = ['youtube.com/yo'];
+
+    test('returns true for whitelisted exact path on blacklisted host', () => {
+      expect(isUrlWhitelisted('https://youtube.com/yo', whitelist)).toBe(true);
+    });
+
+    test('returns false for different path on blacklisted host', () => {
+      expect(isUrlWhitelisted('https://youtube.com/other', whitelist)).toBe(false);
+    });
+
+    test('returns true for www with whitelisted path', () => {
+      expect(isUrlWhitelisted('https://www.youtube.com/yo', whitelist)).toBe(true);
+    });
+
+    test('returns true for subpath of whitelisted path', () => {
+      expect(isUrlWhitelisted('https://youtube.com/yo/subpage', whitelist)).toBe(true);
+    });
+
+    test('returns false for www with different path', () => {
+      expect(isUrlWhitelisted('https://www.youtube.com/other', whitelist)).toBe(false);
     });
   });
 
@@ -89,6 +117,14 @@ describe('isUrlWhitelisted', () => {
 
     test('handles https protocol', () => {
       expect(isUrlWhitelisted('https://youtube.com', ['youtube.com'])).toBe(true);
+    });
+
+    test('handles http with www', () => {
+      expect(isUrlWhitelisted('http://www.youtube.com', ['youtube.com'])).toBe(true);
+    });
+
+    test('handles https with www', () => {
+      expect(isUrlWhitelisted('https://www.youtube.com', ['youtube.com'])).toBe(true);
     });
   });
 });

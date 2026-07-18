@@ -1,5 +1,8 @@
 const matchHostname = (urlHostname: string, patternHostname: string): boolean => {
-  return urlHostname === patternHostname;
+  if (urlHostname === patternHostname) return true;
+  if (urlHostname === 'www.' + patternHostname) return true;
+  if (patternHostname === 'www.' + urlHostname) return true;
+  return false;
 };
 
 const matchPath = (urlPath: string, patternPath: string): boolean => {
@@ -82,5 +85,8 @@ const escapeRegex = (str: string): string => {
 
 export const toUrlFilter = (pattern: string): string => {
   const escaped = escapeRegex(pattern);
+  if (pattern.includes('/')) {
+    return `||${escaped}^`;
+  }
   return `||${escaped}`;
 };

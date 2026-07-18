@@ -178,7 +178,7 @@ test.describe('Popup UI', () => {
       await page.waitForSelector('#blacklist', { state: 'attached', timeout: 5000 });
 
       await getBlacklistCard(page).locator('input').fill('youtube.com');
-      await getBlacklistCard(page).locator('button', { hasText: 'Add' }).click();
+      await getBlacklistCard(page).locator('button', { hasText: 'Ban' }).click();
       await page.waitForTimeout(300);
 
       await expect(page.locator('#blacklist .list-item')).toHaveCount(1);
@@ -192,11 +192,11 @@ test.describe('Popup UI', () => {
       await page.waitForSelector('#blacklist', { state: 'attached', timeout: 5000 });
 
       await getBlacklistCard(page).locator('input').fill('youtube.com');
-      await getBlacklistCard(page).locator('button', { hasText: 'Add' }).click();
+      await getBlacklistCard(page).locator('button', { hasText: 'Ban' }).click();
       await page.waitForTimeout(200);
 
       await getBlacklistCard(page).locator('input').fill('facebook.com');
-      await getBlacklistCard(page).locator('button', { hasText: 'Add' }).click();
+      await getBlacklistCard(page).locator('button', { hasText: 'Ban' }).click();
       await page.waitForTimeout(200);
 
       await expect(page.locator('#blacklist .list-item')).toHaveCount(2);
@@ -257,7 +257,7 @@ test.describe('Popup UI', () => {
       await page.waitForSelector('#blacklist', { timeout: 5000 });
 
       await getBlacklistCard(page).locator('input').fill('youtube.com');
-      await getBlacklistCard(page).locator('button', { hasText: 'Add' }).click();
+      await getBlacklistCard(page).locator('button', { hasText: 'Ban' }).click();
       await page.waitForTimeout(200);
 
       await expect(page.locator('#blacklist .list-item')).toHaveCount(1);
@@ -272,7 +272,7 @@ test.describe('Popup UI', () => {
       await page.waitForSelector('#whitelist', { state: 'attached', timeout: 5000 });
 
       await getWhitelistCard(page).locator('input').fill('youtube.com/video');
-      await getWhitelistCard(page).locator('button', { hasText: 'Add' }).click();
+      await getWhitelistCard(page).locator('button', { hasText: 'Pass' }).click();
       await page.waitForTimeout(300);
 
       await expect(page.locator('#whitelist .list-item')).toHaveCount(1);

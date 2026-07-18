@@ -16,7 +16,7 @@ test.describe('Blocked Page', () => {
     test('blocked page loads', async ({ context }) => {
       const page = await context.newPage();
       await page.goto(`file://${EXTENSION_PATH}/blocked.html`);
-      await expect(page.locator('h1')).toContainText('Blocked');
+      await expect(page.locator('h1')).toContainText('Bro-tervention');
     });
 
     test('shows go back button', async ({ context }) => {
@@ -127,7 +127,7 @@ test.describe('Blocked Page', () => {
       await page.waitForTimeout(500);
 
       await expect(page.locator('#proceed-btn')).toBeVisible();
-      await expect(page.locator('#proceed-btn')).toHaveText('Proceed');
+      await expect(page.locator('#proceed-btn')).toHaveText('Bet, Watch Me');
     });
   });
 });

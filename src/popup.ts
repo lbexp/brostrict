@@ -23,7 +23,7 @@ export const createProtectionCard = (
   cardHeader.className = 'card-header';
 
   const title = document.createElement('h3');
-  title.textContent = 'Match Mode';
+  title.textContent = 'Bro Is Watching';
   cardHeader.appendChild(title);
 
   const toggle = document.createElement('button');
@@ -40,6 +40,7 @@ export const createListCard = (
   id: string,
   title: string,
   placeholder: string,
+  addLabel: string,
 ): {
   card: HTMLDivElement;
   list: HTMLUListElement;
@@ -66,7 +67,7 @@ export const createListCard = (
   input.placeholder = placeholder;
 
   const addBtn = document.createElement('button');
-  addBtn.textContent = 'Add';
+  addBtn.textContent = addLabel;
 
   inputRow.appendChild(input);
   inputRow.appendChild(addBtn);
@@ -191,7 +192,7 @@ export const render = (data: Data): HTMLDivElement => {
     list: blacklistList,
     addBtn: blacklistAddBtn,
     input: blacklistInput,
-  } = createListCard('blacklist', 'Red Carded', 'youtube.com');
+  } = createListCard('blacklist', 'Nah, Lil Bro', 'youtube.com', 'Ban');
   container.appendChild(blacklistCard);
 
   const {
@@ -199,7 +200,7 @@ export const render = (data: Data): HTMLDivElement => {
     list: whitelistList,
     addBtn: whitelistAddBtn,
     input: whitelistInput,
-  } = createListCard('whitelist', 'Starting Eleven', 'youtube.com/video');
+  } = createListCard('whitelist', 'It Gets a Pass', 'youtube.com/video', 'Pass');
   container.appendChild(whitelistCard);
 
   const updateUI = (newData: Data): void => {

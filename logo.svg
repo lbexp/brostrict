@@ -1,7 +1,10 @@
 <svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <clipPath id="shield-clip">
-      <path d="M64 22 L98 33 V61 C98 84 83 100 64 109 C45 100 30 84 30 61 V33 Z"/>
+    <clipPath id="tile-clip">
+      <rect x="3" y="3" width="122" height="122" rx="24"/>
+    </clipPath>
+    <clipPath id="jacket-clip">
+      <path d="M66 84 Q90 76 125 82 L125 125 L60 125 Z"/>
     </clipPath>
     <pattern id="tone" width="7" height="7" patternUnits="userSpaceOnUse">
       <circle cx="2" cy="2" r="1.5" fill="rgba(0,0,0,0.16)"/>
@@ -9,18 +12,55 @@
   </defs>
   <!-- manga panel tile -->
   <rect x="3" y="3" width="122" height="122" rx="24" fill="#f6efe2" stroke="#141210" stroke-width="5"/>
-  <!-- angry shield -->
-  <path d="M64 22 L98 33 V61 C98 84 83 100 64 109 C45 100 30 84 30 61 V33 Z" fill="#e6301e" stroke="#141210" stroke-width="5" stroke-linejoin="round"/>
-  <rect x="20" y="16" width="88" height="100" fill="url(#tone)" clip-path="url(#shield-clip)"/>
-  <!-- furious brows -->
-  <line x1="42" y1="41" x2="57" y2="48" stroke="#141210" stroke-width="6.5" stroke-linecap="round"/>
-  <line x1="86" y1="41" x2="71" y2="48" stroke="#141210" stroke-width="6.5" stroke-linecap="round"/>
-  <!-- intense eyes -->
-  <circle cx="50" cy="59" r="6" fill="#fffdf7" stroke="#141210" stroke-width="3"/>
-  <circle cx="78" cy="59" r="6" fill="#fffdf7" stroke="#141210" stroke-width="3"/>
-  <circle cx="52.4" cy="60.6" r="2.6" fill="#141210"/>
-  <circle cx="75.6" cy="60.6" r="2.6" fill="#141210"/>
-  <!-- screaming mouth -->
-  <ellipse cx="64" cy="85" rx="10.5" ry="12" fill="#141210"/>
-  <rect x="56.5" y="74.5" width="15" height="5.5" rx="2.5" fill="#fffdf7"/>
+  <g clip-path="url(#tile-clip)">
+    <!-- the man: neck then body (jacket covers neck base) -->
+    <path d="M86 58 L95 58 L95 86 Q90 89 85 86 Z" fill="#eec39a"/>
+    <path d="M66 84 Q90 76 125 82 L125 125 L60 125 Z" fill="#e6301e" stroke="#141210" stroke-width="4" stroke-linejoin="round"/>
+    <rect x="58" y="74" width="70" height="54" fill="url(#tone)" clip-path="url(#jacket-clip)"/>
+    <!-- jacket collar + arm seam -->
+    <path d="M84 84 L90 91 L97 84" fill="none" stroke="#141210" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M104 79 Q109 87 107 97" fill="none" stroke="#141210" stroke-width="3" stroke-linecap="round"/>
+    <!-- the man: head -->
+    <path d="M76 31 Q73 45 77 55 Q81 65 90 65 Q100 65 103 53 Q106 41 102 31 Q90 25 76 31 Z" fill="#eec39a" stroke="#141210" stroke-width="4" stroke-linejoin="round"/>
+    <!-- the man: 70s swept hair, fringe off the face -->
+    <path d="M72 38 Q63 15 84 10 Q91 3 103 6 Q115 9 113 20 Q119 25 111 32 Q113 24 103 23 Q107 29 98 29 Q91 23 83 27 Q75 31 72 38 Z" fill="#141210"/>
+    <!-- the man: knowing brows + side-eye glance -->
+    <line x1="79" y1="39" x2="88" y2="37.5" stroke="#141210" stroke-width="3" stroke-linecap="round"/>
+    <line x1="93" y1="37.5" x2="101" y2="39" stroke="#141210" stroke-width="3" stroke-linecap="round"/>
+    <ellipse cx="84" cy="45" rx="4.2" ry="3" fill="#fffdf7" stroke="#141210" stroke-width="2.2"/>
+    <ellipse cx="96" cy="45" rx="4.2" ry="3" fill="#fffdf7" stroke="#141210" stroke-width="2.2"/>
+    <circle cx="82.3" cy="45" r="1.7" fill="#141210"/>
+    <circle cx="94.3" cy="45" r="1.7" fill="#141210"/>
+    <path d="M90 49 L92 53" fill="none" stroke="#141210" stroke-width="2.2" stroke-linecap="round"/>
+    <!-- the man: smirk -->
+    <path d="M83 57 Q90 61 97 56" fill="none" stroke="#141210" stroke-width="3" stroke-linecap="round"/>
+    <!-- the kid: body -->
+    <path d="M14 98 Q38 88 62 92 L66 125 L10 125 Z" fill="#fffdf7" stroke="#141210" stroke-width="4" stroke-linejoin="round"/>
+    <!-- the kid: head -->
+    <path d="M26 50 Q22 66 29 76 Q37 84 46 81 Q55 76 57 62 Q58 51 52 46 Q39 40 26 50 Z" fill="#f6d7b0" stroke="#141210" stroke-width="4" stroke-linejoin="round"/>
+    <!-- the kid: hair cap -->
+    <path d="M23 51 Q18 32 40 30 Q61 30 58 50 Q55 41 44 40 Q34 40 29 44 Q25 48 23 51 Z" fill="#141210"/>
+    <!-- the kid: worried brows -->
+    <line x1="30" y1="57" x2="36" y2="55" stroke="#141210" stroke-width="3" stroke-linecap="round"/>
+    <line x1="45" y1="55" x2="51" y2="57" stroke="#141210" stroke-width="3" stroke-linecap="round"/>
+    <!-- the kid: wide eyes looking up at bro -->
+    <circle cx="34" cy="63" r="4.8" fill="#fffdf7" stroke="#141210" stroke-width="2.5"/>
+    <circle cx="47" cy="63" r="4.8" fill="#fffdf7" stroke="#141210" stroke-width="2.5"/>
+    <circle cx="36" cy="61.5" r="2.1" fill="#141210"/>
+    <circle cx="49" cy="61.5" r="2.1" fill="#141210"/>
+    <!-- the kid: small open mouth -->
+    <ellipse cx="41" cy="74" rx="3" ry="3.8" fill="#141210"/>
+    <!-- the kid: sweat drop -->
+    <path d="M19 40 C 23 46 25 49 25 53 A 6 6 0 1 1 13 53 C 13 49 15 46 19 40 Z" fill="#9fd3ff" stroke="#141210" stroke-width="2"/>
+    <!-- the man's arm reaching in -->
+    <path d="M112 84 Q88 76 66 82 L60 86 Q57 90 61 93 Q86 90 108 96 Z" fill="#e6301e" stroke="#141210" stroke-width="4" stroke-linejoin="round"/>
+    <!-- the hand on the shoulder -->
+    <path d="M64 80 Q56 76 50 81 Q44 86 46 92 Q43 97 48 100 Q47 106 53 107 Q53 113 60 111 Q65 115 68 108 Q72 102 71 93 Q71 85 64 80 Z" fill="#eec39a" stroke="#141210" stroke-width="3.5" stroke-linejoin="round"/>
+    <line x1="49" y1="88" x2="57" y2="90" stroke="#141210" stroke-width="2" stroke-linecap="round"/>
+    <line x1="48" y1="96" x2="56" y2="98" stroke="#141210" stroke-width="2" stroke-linecap="round"/>
+    <line x1="50" y1="104" x2="58" y2="105" stroke="#141210" stroke-width="2" stroke-linecap="round"/>
+    <!-- pat impact ticks -->
+    <line x1="74" y1="79" x2="80" y2="73" stroke="#141210" stroke-width="3" stroke-linecap="round"/>
+    <line x1="77" y1="88" x2="84" y2="85" stroke="#141210" stroke-width="3" stroke-linecap="round"/>
+  </g>
 </svg>

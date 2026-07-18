@@ -16,11 +16,12 @@ bun run build   # runs: bun build.ts
 `build.ts` compiles `src/popup.ts` and `src/background.ts` via esbuild to `tmp/`, then copies both compiled files and static assets (`index.html`, `blocked.html`, `manifest.json`, `icon-16/32/48/128.png`, `icon-store.png`) to `build/`. The `tmp/` directory is intermediate; final output is in `build/`.
 
 ## Branding
-- Theme: retro sports-manga parody ("Brostrict F.C.") — blood red `#e6301e` + ink `#141210` on cream paper `#f6efe2`, halftone dot textures, concentration/speed lines, hard offset shadows, chunky ink borders
-- `logo.svg` (root) is the master mascot source: an original angry screaming shield character; the PNG icons are rasterized from it (via headless Chromium, e.g. Playwright screenshot at each size)
-- The mascot SVG is inlined in `index.html` (popup header) and `blocked.html` (hero emblem with anger mark + sweat drop + red card, plus footer)
+- Theme: "Man Putting Hand On Shoulder" meme redrawn in retro 70s anime style (Akakichi no Eleven aesthetic) — a smug anime guy stops you with a hand on your shoulder. Palette: blood red `#e6301e` + ink `#141210` on cream paper `#f6efe2`, halftone dot textures, concentration/speed lines, hard offset shadows, chunky ink borders
+- `logo.svg` (root) is the master mascot source: an original two-character meme scene (smug guy with hand on wide-eyed kid's shoulder, inside a manga-panel tile); the PNG icons are rasterized from it (via headless Chromium, e.g. Playwright screenshot at each size)
+- The mascot SVG is inlined in `index.html` (popup header) and `blocked.html` (tile-less hero emblem with "Go touch grass, lil bro." speech bubble, plus a simplified footer version)
 - Design tokens (colors, radii, shadows) are defined as CSS custom properties in `:root` of each HTML file; fonts: Bangers (display), Space Grotesk (UI), IBM Plex Mono (URLs)
-- Soccer motif naming: popup cards are titled "Match Mode" (protection toggle), "Red Carded" (blacklist), "Starting Eleven" (whitelist); whitelisted notice on `blocked.html` is styled as a yellow card
+- Gen Z meme wording: popup cards are titled "Bro Is Watching" (protection toggle), "Nah, Lil Bro" (blacklist), "It Gets a Pass" (whitelist) with "Ban"/"Pass" add buttons; `blocked.html` headline is "Bro-tervention." with "Bet, Watch Me" (proceed) / "Say Less" (go back) buttons; shared tagline is "your personal nah machine" (popup subtitle + blocked footer)
+- Card title glyphs are pure CSS shapes: eye (protection), no-entry circle (blacklist), check (whitelist)
 - `popup.ts` adds card modifier classes for styling hooks: `protection-card`, `blacklist-card`, `whitelist-card`
 
 ## Entry Points
@@ -50,4 +51,7 @@ Used by `blocked.html` to detect if the blocked URL matches a whitelist entry an
 - `noUncheckedIndexedAccess: true` enabled (treats array index access as potentially undefined)
 - Whitelist rules have priority 2, blacklist rules have priority 1 in declarativeNetRequest
 
-## No tests or lint configured
+## Tests
+- Unit: `bun run test` (bun test with `tests/preload.ts`, specs in `tests/unit/`)
+- E2E: `bun run test:e2e` (Playwright, specs in `tests/e2e/` — popup specs mock `chrome.storage.local` via `addInitScript`; blocked page specs mock `document.referrer` + `chrome.runtime.sendMessage`)
+- No lint configured

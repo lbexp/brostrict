@@ -17,13 +17,13 @@ export const createProtectionCard = (
   onToggle: () => void,
 ): HTMLDivElement => {
   const card = document.createElement('div');
-  card.className = 'card';
+  card.className = 'card protection-card';
 
   const cardHeader = document.createElement('div');
   cardHeader.className = 'card-header';
 
   const title = document.createElement('h3');
-  title.textContent = 'Protection';
+  title.textContent = 'Match Mode';
   cardHeader.appendChild(title);
 
   const toggle = document.createElement('button');
@@ -47,7 +47,7 @@ export const createListCard = (
   input: HTMLInputElement;
 } => {
   const card = document.createElement('div');
-  card.className = 'card';
+  card.className = `card ${id}-card`;
 
   const cardHeader = document.createElement('div');
   cardHeader.className = 'card-header';
@@ -191,7 +191,7 @@ export const render = (data: Data): HTMLDivElement => {
     list: blacklistList,
     addBtn: blacklistAddBtn,
     input: blacklistInput,
-  } = createListCard('blacklist', 'Blacklist', 'youtube.com');
+  } = createListCard('blacklist', 'Red Carded', 'youtube.com');
   container.appendChild(blacklistCard);
 
   const {
@@ -199,7 +199,7 @@ export const render = (data: Data): HTMLDivElement => {
     list: whitelistList,
     addBtn: whitelistAddBtn,
     input: whitelistInput,
-  } = createListCard('whitelist', 'Whitelist', 'youtube.com/video');
+  } = createListCard('whitelist', 'Starting Eleven', 'youtube.com/video');
   container.appendChild(whitelistCard);
 
   const updateUI = (newData: Data): void => {

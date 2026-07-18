@@ -79,33 +79,6 @@ chrome.storage.local.onChanged.addListener((changes) => {
   }
 });
 
-chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  console.log('[DEBUG] chrome onMessage invoked!');
-
-  if (message.type === 'getWhitelist') {
-    sendResponse({ whitelist: cachedData.whitelist });
-    console.log('[DEBUG] chrome onMessage getWhitelist:', cachedData.whitelist);
-  }
-
-  if (message.type === 'isWhitelisted') {
-    if (typeof message.url === 'string') {
-      const isWhitelisted = isUrlWhitelisted(message.url, cachedData.whitelist);
-      sendResponse({
-        result: isWhitelisted,
-      });
-
-      console.log(
-        '[DEBUG] chrome onMessage isWhitelisted valid:',
-        isWhitelisted,
-      );
-    } else {
-      sendResponse({ result: false });
-      console.log('[DEBUG] chrome onMessage isWhitelisted valid: non-string');
-    }
-  }
-  return true;
-});
-
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   console.log('[DEBUG] chrome onUpdated invoked!', {
     changeInfoUrl: changeInfo.url,

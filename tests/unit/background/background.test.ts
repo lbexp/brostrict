@@ -69,49 +69,6 @@ describe('background.ts', () => {
     });
   });
 
-  describe('onMessage handler', () => {
-    test('responds with whitelist for getWhitelist message', async () => {
-      bgModule.cachedData.whitelist = ['youtube.com/video', 'youtube.com/yo'];
-      const response = await chrome.runtime.sendMessage({ type: 'getWhitelist' });
-      expect(response).toEqual({ whitelist: ['youtube.com/video', 'youtube.com/yo'] });
-    });
-
-    test('isWhitelisted returns true for matching URL', async () => {
-      bgModule.cachedData.whitelist = ['youtube.com/video'];
-      const response = await chrome.runtime.sendMessage({
-        type: 'isWhitelisted',
-        url: 'https://youtube.com/video',
-      });
-      expect(response).toEqual({ result: true });
-    });
-
-    test('isWhitelisted returns false for non-matching URL', async () => {
-      bgModule.cachedData.whitelist = ['youtube.com/video'];
-      const response = await chrome.runtime.sendMessage({
-        type: 'isWhitelisted',
-        url: 'https://youtube.com/watch',
-      });
-      expect(response).toEqual({ result: false });
-    });
-
-    test('isWhitelisted returns false when url is not a string', async () => {
-      bgModule.cachedData.whitelist = ['youtube.com/video'];
-      const response = await chrome.runtime.sendMessage({
-        type: 'isWhitelisted',
-      } as { type: string; url?: string });
-      expect(response).toEqual({ result: false });
-    });
-
-    test('isWhitelisted returns false for empty whitelist', async () => {
-      bgModule.cachedData.whitelist = [];
-      const response = await chrome.runtime.sendMessage({
-        type: 'isWhitelisted',
-        url: 'https://youtube.com/video',
-      });
-      expect(response).toEqual({ result: false });
-    });
-  });
-
   describe('onChanged handler', () => {
     test('updates cachedData when valid storage data changes', async () => {
       const newData = {

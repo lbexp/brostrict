@@ -13,9 +13,6 @@
         --ink: #141210;
         --ink-soft: #55504a;
         --red: #e6301e;
-        --red-dark: #c92a12;
-        --green: #2f9e44;
-        --green-soft: #dcf2e3;
         --yellow: #ffd43b;
       }
       * {
@@ -237,84 +234,24 @@
         border-radius: 4px;
         transform: rotate(-1.2deg);
       }
-      .url-chip {
-        display: none;
-        align-items: center;
-        gap: 8px;
-        max-width: 100%;
-        background: var(--panel);
-        border: 2.5px solid var(--ink);
-        border-radius: 999px;
-        padding: 8px 16px;
-        margin-bottom: 20px;
-        font-family: 'IBM Plex Mono', monospace;
-        font-size: 0.74rem;
-        font-weight: 500;
-        color: var(--ink);
-        box-shadow: 3px 3px 0 var(--ink);
-        transform: rotate(-1deg);
-      }
-      .url-chip::before {
-        content: '';
-        flex-shrink: 0;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        border: 2px solid var(--red);
-        background: linear-gradient(to bottom right, transparent 42%, var(--red) 42%, var(--red) 58%, transparent 58%);
-      }
-      .url-chip span {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-      /* bro's reluctant permission slip */
-      .notice {
-        position: relative;
-        background: var(--green-soft);
-        border: 2.5px solid var(--ink);
-        border-radius: 12px;
-        padding: 11px 18px;
-        margin-bottom: 22px;
-        font-size: 0.78rem;
-        font-weight: 700;
-        color: var(--ink);
-        box-shadow: 4px 4px 0 var(--ink);
-        transform: rotate(-1deg);
-        display: none;
-      }
-      .notice::after {
-        content: 'CERTIFIED PASS';
-        position: absolute;
-        top: -13px;
-        right: -8px;
-        padding: 2px 8px;
-        background: var(--paper);
-        border: 2px solid var(--green);
-        border-radius: 7px;
-        color: var(--green);
-        font-family: 'IBM Plex Mono', monospace;
-        font-size: 0.52rem;
-        font-weight: 500;
-        letter-spacing: 1.6px;
-        transform: rotate(4deg);
-        box-shadow: 2px 2px 0 var(--ink);
-      }
       .button-group {
         display: flex;
         gap: 14px;
         justify-content: center;
         flex-wrap: wrap;
       }
-      button {
-        background: var(--red);
-        color: var(--paper);
+      #go-back-btn {
+        --tilt: 1.3deg;
+        display: inline-block;
+        background: var(--panel);
+        color: var(--ink);
         border: 3px solid var(--ink);
         padding: 12px 28px;
         font-size: 1.05rem;
         font-weight: 400;
         letter-spacing: 2px;
         text-transform: uppercase;
+        text-decoration: none;
         font-family: 'Bangers', 'Impact', sans-serif;
         border-radius: 12px;
         cursor: pointer;
@@ -322,25 +259,16 @@
         transform: rotate(var(--tilt, 0deg));
         transition: all 0.15s ease;
       }
-      #proceed-btn { --tilt: -1.3deg; }
-      #go-back-btn { --tilt: 1.3deg; }
-      button:hover {
-        background: var(--red-dark);
+      #go-back-btn:hover {
+        background: var(--yellow);
         transform: rotate(var(--tilt, 0deg)) translate(-2px, -2px);
         box-shadow: 6px 6px 0 var(--ink);
       }
-      button:active {
+      #go-back-btn:active {
         transform: rotate(var(--tilt, 0deg)) translate(3px, 3px);
         box-shadow: 1px 1px 0 var(--ink);
       }
-      button.secondary {
-        background: var(--panel);
-        color: var(--ink);
-      }
-      button.secondary:hover {
-        background: var(--yellow);
-      }
-      button:focus-visible {
+      #go-back-btn:focus-visible {
         outline: 3px dashed var(--red);
         outline-offset: 3px;
       }
@@ -436,13 +364,8 @@
         </svg>
       </div>
       <h1>Bro-tervention.</h1>
-      <div class="url-chip" id="url-chip"><span id="url-host"></span></div>
-      <div class="notice" id="notice">
-        Aight bet, this one gets a pass.
-      </div>
       <div class="button-group">
-        <button id="proceed-btn" style="display: none;">Bet, Watch Me</button>
-        <button id="go-back-btn" class="secondary">Say Less</button>
+        <a id="go-back-btn" href="https://www.google.com/search?q=touch+grass">Say Less</a>
       </div>
       <div class="footer">
         <svg width="18" height="18" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
@@ -458,53 +381,5 @@
         <span>Brostrict — your personal nah machine</span>
       </div>
     </div>
-    <script>
-      let detectedUrl = '';
-      if (window.location.ancestorOrigins && window.location.ancestorOrigins.length > 0) {
-        detectedUrl = window.location.ancestorOrigins[0];
-      } else if (document.referrer) {
-        detectedUrl = document.referrer;
-      }
-
-      if (detectedUrl) {
-        try {
-          const host = new URL(detectedUrl).hostname;
-          if (host) {
-            document.getElementById('url-host').textContent = host;
-            document.getElementById('url-chip').style.display = 'inline-flex';
-          }
-        } catch {
-          // no valid URL detected — chip stays hidden
-        }
-
-        chrome.runtime.sendMessage({ type: 'isWhitelisted', url: detectedUrl }, (response) => {
-          if (response && response.result) {
-            document.getElementById('notice').style.display = 'block';
-            document.getElementById('proceed-btn').style.display = 'inline-block';
-          }
-        });
-      }
-
-      document.getElementById('proceed-btn').addEventListener('click', () => {
-        if (detectedUrl) {
-          window.location.href = detectedUrl;
-        }
-      });
-
-      document.getElementById('go-back-btn').addEventListener('click', () => {
-        if (window.history.length > 1) {
-          window.history.back();
-        } else if (detectedUrl) {
-          try {
-            const domain = new URL(detectedUrl).hostname;
-            window.location.href = 'https://' + domain;
-          } catch {
-            window.close();
-          }
-        } else {
-          window.close();
-        }
-      });
-    </script>
   </body>
 </html>

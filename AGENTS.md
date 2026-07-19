@@ -43,7 +43,7 @@ interface Data {
 ```
 
 ## Runtime Constraints
-- `background.ts` uses `chrome.runtime.onInstalled` / `onStartup` for init
+- `background.ts` keeps no in-memory state: MV3 kills idle service workers (~30s), wiping module-level variables, so the `tabs.onUpdated` handler reads `chrome.storage.local` on every event (falling back to defaults when storage is empty/invalid)
 - `noUncheckedIndexedAccess: true` enabled (treats array index access as potentially undefined)
 - Whitelist rules have priority 2, blacklist rules have priority 1 in declarativeNetRequest
 

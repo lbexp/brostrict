@@ -322,6 +322,45 @@ test.describe('Popup UI', () => {
     });
   });
 
+  test.describe('list scrolling', () => {
+    test('scrolls when there are many items', async ({ context }) => {
+      const page = await context.newPage();
+      await setupChromeMock(page, {
+        blacklist: Array.from({ length: 10 }, (_, i) => `site${i}.com`),
+        whitelist: [],
+        active: true,
+      });
+      await page.goto(`file://${EXTENSION_PATH}/index.html`);
+      await page.waitForSelector('#blacklist .list-item', { timeout: 5000 });
+
+      const list = page.locator('#blacklist');
+      const scrolls = await list.evaluate((el) => el.scrollHeight > el.clientHeight);
+      expect(scrolls).toBe(true);
+
+      const heights = await list.locator('.list-item').evaluateAll((items) =>
+        items.map((item) => item.offsetHeight),
+      );
+      expect(new Set(heights).size).toBe(1);
+      expect(heights[0]).toBeGreaterThan(0);
+    });
+
+    test('does not scroll when there are few items', async ({ context }) => {
+      const page = await context.newPage();
+      await setupChromeMock(page, {
+        blacklist: ['youtube.com'],
+        whitelist: [],
+        active: true,
+      });
+      await page.goto(`file://${EXTENSION_PATH}/index.html`);
+      await page.waitForSelector('#blacklist .list-item', { timeout: 5000 });
+
+      const scrolls = await page
+        .locator('#blacklist')
+        .evaluate((el) => el.scrollHeight > el.clientHeight);
+      expect(scrolls).toBe(false);
+    });
+  });
+
   test('shows blacklist and whitelist cards with preloaded data', async ({ context }) => {
     const page = await context.newPage();
     await setupChromeMock(page, {

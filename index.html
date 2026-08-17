@@ -367,8 +367,9 @@
       }
       .list {
         list-style: none;
-        max-height: 96px;
+        max-height: 144px;
         overflow-y: auto;
+        overscroll-behavior: contain;
         /* room for .list-item hover shadow/translate, offset by negative margins */
         padding: 2px 3px 3px 2px;
         margin: 8px -3px -3px -2px;
@@ -393,6 +394,8 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+        min-height: 36px;
+        flex-shrink: 0;
         padding: 7px 10px;
         background: var(--paper);
         border: 2px solid var(--ink);
